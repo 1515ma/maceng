@@ -1,0 +1,44 @@
+---
+description: XP methodology and strict TDD workflow for all production code
+alwaysApply: true
+---
+
+# XP & TDD — Red, Green, Refactor
+
+## TDD Strict
+
+Every feature starts with a **failing test**. No production code without a prior test.
+
+1. **Red** — Write a test that fails for the desired behavior.
+2. **Green** — Write the minimum code to make the test pass.
+3. **Refactor** — Clean up duplication and improve design, keeping tests green.
+
+```typescript
+// ❌ BAD — production code without a test
+export function calcOccupancyRate(occupied: number, total: number) {
+  return occupied / total;
+}
+
+// ✅ GOOD — test first
+describe('calcOccupancyRate', () => {
+  it('returns ratio of occupied to total units', () => {
+    expect(calcOccupancyRate(8, 10)).toBe(0.8);
+  });
+  it('returns 0 when no units are occupied', () => {
+    expect(calcOccupancyRate(0, 10)).toBe(0);
+  });
+  it('throws when total is 0', () => {
+    expect(() => calcOccupancyRate(0, 0)).toThrow();
+  });
+});
+```
+
+## YAGNI
+
+- Do NOT add features "for the future". Solve the current requirement only.
+- If a function, parameter, or abstraction is not needed by an existing test, delete it.
+
+## Pair Programming Mindset
+
+- Explain the *why* behind each design decision when asked.
+- Suggest small, incremental commits after each Green/Refactor cycle.

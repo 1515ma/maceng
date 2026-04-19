@@ -1,0 +1,41 @@
+---
+description: High performance and efficiency standards for ERP operations
+alwaysApply: true
+---
+
+# Performance & Efficiency
+
+## Big O Analysis
+
+- Prefer O(1) or O(log n) algorithms. Justify any O(n²) or worse.
+- Comment the time/space complexity on non-trivial algorithms.
+
+## N+1 Query Prevention
+
+Queries inside loops are **forbidden**. Use JOINs, subqueries, or batching.
+
+```typescript
+// ❌ BAD — N+1: one query per unit
+const units = await db.select().from(units);
+for (const unit of units) {
+  const tenant = await db.select().from(tenants).where(eq(tenants.id, unit.tenantId));
+}
+
+// ✅ GOOD — single query with JOIN
+const result = await db
+  .select()
+  .from(units)
+  .leftJoin(tenants, eq(units.tenantId, tenants.id));
+```
+
+## Memory & Streams
+
+- Use Streams (Node.js `Readable`/`Transform`) for heavy reports (occupancy, financial, CSV/PDF export).
+- Paginate all list endpoints. Default page size ≤ 50.
+- Avoid loading entire collections into memory.
+
+## Database
+
+- Add indexes for columns used in WHERE, JOIN, and ORDER BY.
+- Use database transactions for operations that modify multiple tables.
+- Prefer `EXISTS` over `COUNT(*)` for existence checks.

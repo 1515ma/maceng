@@ -1,0 +1,59 @@
+---
+description: Clean Architecture with isolated core and dependency inversion
+alwaysApply: true
+---
+
+# Architecture — Clean Core
+
+## Layer Isolation
+
+The `core` layer (entities, use cases, domain logic) is **fully isolated**:
+
+- No imports from external libraries (ORMs, HTTP frameworks, cloud SDKs).
+- No direct database access. Depend on **interfaces** (ports), not implementations.
+- Framework-specific code lives in `infra` or `adapters` layers only.
+
+```
+src/
+  core/           # Entities, Use Cases, Domain Services — zero external deps
+    entities/
+    use-cases/
+    ports/        # Interfaces (repositories, gateways)
+  infra/          # Implementations of ports (DB, HTTP clients, queues)
+    repositories/
+    services/
+  adapters/       # Controllers, presenters, route handlers
+    http/
+    cli/
+```
+
+## Dependency Inversion
+
+- Use cases receive dependencies via constructor injection (ports/interfaces).
+- This enables easy mocking in unit tests — no need for database or network in core tests.
+
+```typescript
+// ❌ BAD — use case depends directly on ORM
+import { db } from '../infra/database';
+
+export class CreateTenant {
+  async execute(data: CreateTenantDTO) {
+    return db.insert(tenants).values(data);
+  }
+}
+
+// ✅ GOOD — depends on interface, injected via constructor
+export class CreateTenant {
+  constructor(private readonly tenantRepo: TenantRepository) {}
+
+  async execute(data: CreateTenantDTO) {
+    return this.tenantRepo.create(data);
+  }
+}
+```
+
+## Testing Strategy
+
+- **Unit tests** for `core` — fast, no I/O, mock all ports.
+- **Integration tests** for `infra` — real DB (use testcontainers or in-memory).
+- **E2E tests** for critical flows — full stack with HTTP requests.

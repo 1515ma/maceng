@@ -1,0 +1,57 @@
+---
+description: DevSecOps protocols aligned with OWASP Top 10
+alwaysApply: true
+---
+
+# DevSecOps — OWASP Top 10
+
+## Secure by Default
+
+- Every route is **private** unless explicitly marked public.
+- Passwords are **never** stored in plaintext. Use Argon2id or BCrypt with appropriate cost factors.
+- Secrets and API keys go in environment variables, never in source code.
+
+## Zero Trust Input Validation
+
+- Validate **every** external input (request body, query params, headers) with Zod schemas.
+- Use UUID v4/v7 for entity IDs to prevent IDOR (Insecure Direct Object Reference).
+- Never trust client-side data for authorization decisions.
+
+```typescript
+// ❌ BAD — sequential numeric IDs expose enumeration
+id: serial('id').primaryKey()
+
+// ✅ GOOD — UUIDs prevent IDOR
+id: uuid('id').defaultRandom().primaryKey()
+```
+
+```typescript
+// ❌ BAD — unvalidated input
+app.post('/tenants', (req, res) => {
+  db.insert(req.body);
+});
+
+// ✅ GOOD — Zod schema validation
+const CreateTenantSchema = z.object({
+  name: z.string().min(1).max(200),
+  email: z.string().email(),
+  document: z.string().regex(/^\d{11,14}$/),
+});
+
+app.post('/tenants', (req, res) => {
+  const data = CreateTenantSchema.parse(req.body);
+  // ...
+});
+```
+
+## SAST / SCA
+
+- Before suggesting `npm install <pkg>`, check for known vulnerabilities.
+- Prefer packages with active maintenance, no critical CVEs, and minimal transitive dependencies.
+- Flag any use of `eval()`, `innerHTML`, `dangerouslySetInnerHTML`, or unsanitized SQL interpolation.
+
+## Auth & Session
+
+- Use short-lived JWTs with refresh token rotation.
+- Implement rate limiting on auth endpoints.
+- Log authentication failures for anomaly detection.
