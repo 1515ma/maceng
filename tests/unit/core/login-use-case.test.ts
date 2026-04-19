@@ -1,34 +1,16 @@
 import { LoginUseCase } from "@/core/use-cases/login";
-import type { AuthProvider, AuthResult } from "@/core/ports/auth-provider";
-import type { User } from "@/core/entities/user";
-
-const mockUser: User = {
-  id: "550e8400-e29b-41d4-a716-446655440000",
-  email: "user@example.com",
-  name: "Test User",
-  plan: "free",
-  calculationsUsed: 0,
-  createdAt: new Date(),
-};
-
-function createMockAuthProvider(overrides: Partial<AuthProvider> = {}): AuthProvider {
-  return {
-    signInWithEmail: jest.fn(async (): Promise<AuthResult> => ({ success: true, user: mockUser })),
-    signUp: jest.fn(async (): Promise<AuthResult> => ({ success: true, user: mockUser })),
-    signInWithGoogle: jest.fn(async () => ({ success: true as const, redirectUrl: "https://google.com" })),
-    signOut: jest.fn(async () => {}),
-    getUser: jest.fn(async () => mockUser),
-    ...overrides,
-  };
-}
+import { createUser, createMockAuthProvider, createLoginInput, VALID_PASSWORD } from "@tests/factories";
 
 describe("LoginUseCase", () => {
+  const user = createUser({ email: "user@example.com", name: "Test User" });
+  const input = createLoginInput();
+
   // Evita: login aceitar email vazio — validação Zod deve rejeitar antes de chegar ao provider
   it("rejects invalid email before calling auth provider", async () => {
-    const mock = createMockAuthProvider();
+    const mock = createMockAuthProvider({}, user);
     const useCase = new LoginUseCase(mock);
 
-    const result = await useCase.execute("", "Senh@123");
+    const result = await useCase.execute("", VALID_PASSWORD);
 
     expect(result.success).toBe(false);
     if (!result.success) {
@@ -39,10 +21,10 @@ describe("LoginUseCase", () => {
 
   // Evita: login aceitar senha curta — validação deve rejeitar antes de gastar request no auth provider
   it("rejects password shorter than 6 chars", async () => {
-    const mock = createMockAuthProvider();
+    const mock = createMockAuthProvider({}, user);
     const useCase = new LoginUseCase(mock);
 
-    const result = await useCase.execute("user@example.com", "123");
+    const result = await useCase.execute(input.email, "123");
 
     expect(result.success).toBe(false);
     expect(mock.signInWithEmail).not.toHaveBeenCalled();
@@ -50,21 +32,21 @@ describe("LoginUseCase", () => {
 
   // Evita: dados válidos não chegarem ao provider, bloqueando o login real
   it("calls auth provider with valid credentials", async () => {
-    const mock = createMockAuthProvider();
+    const mock = createMockAuthProvider({}, user);
     const useCase = new LoginUseCase(mock);
 
-    const result = await useCase.execute("user@example.com", "Senh@123");
+    const result = await useCase.execute(input.email, input.password);
 
     expect(result.success).toBe(true);
-    expect(mock.signInWithEmail).toHaveBeenCalledWith("user@example.com", "Senh@123");
+    expect(mock.signInWithEmail).toHaveBeenCalledWith(input.email, input.password);
   });
 
   // Evita: use case engolir erro do provider e retornar sucesso falso ao usuário
   it("returns user on successful login", async () => {
-    const mock = createMockAuthProvider();
+    const mock = createMockAuthProvider({}, user);
     const useCase = new LoginUseCase(mock);
 
-    const result = await useCase.execute("user@example.com", "Senh@123");
+    const result = await useCase.execute(input.email, input.password);
 
     expect(result.success).toBe(true);
     if (result.success) {
@@ -79,7 +61,7 @@ describe("LoginUseCase", () => {
     });
     const useCase = new LoginUseCase(mock);
 
-    const result = await useCase.execute("user@example.com", "SenhaErrada1");
+    const result = await useCase.execute(input.email, "SenhaErrada1");
 
     expect(result.success).toBe(false);
     if (!result.success) {
@@ -94,7 +76,7 @@ describe("LoginUseCase", () => {
     });
     const useCase = new LoginUseCase(mock);
 
-    const result = await useCase.execute("user@example.com", "Senh@123");
+    const result = await useCase.execute(input.email, input.password);
 
     expect(result.success).toBe(false);
     if (!result.success) {

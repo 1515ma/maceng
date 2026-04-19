@@ -8,6 +8,7 @@ const config: Config = {
   setupFilesAfterEnv: ["<rootDir>/tests/setup.ts"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
+    "^@tests/(.*)$": "<rootDir>/tests/$1",
     "^framer-motion$": "<rootDir>/tests/__mocks__/framer-motion.tsx",
     "^next-themes$": "<rootDir>/tests/__mocks__/next-themes.tsx",
   },

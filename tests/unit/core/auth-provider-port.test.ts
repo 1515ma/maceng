@@ -1,28 +1,12 @@
-import type { AuthProvider, AuthResult } from "@/core/ports/auth-provider";
-import type { User } from "@/core/entities/user";
-
-// Mock que implementa o contrato — se o contrato mudar, este teste quebra
-const mockUser: User = {
-  id: "550e8400-e29b-41d4-a716-446655440000",
-  email: "test@example.com",
-  name: "Test User",
-  plan: "free",
-  calculationsUsed: 0,
-  createdAt: new Date(),
-};
-
-const mockAuthProvider: AuthProvider = {
-  signInWithEmail: async () => ({ success: true, user: mockUser }),
-  signUp: async () => ({ success: true, user: mockUser }),
-  signInWithGoogle: async () => ({ success: true, redirectUrl: "https://accounts.google.com" }),
-  signOut: async () => {},
-  getUser: async () => mockUser,
-};
+import { createUser, createMockAuthProvider, VALID_PASSWORD } from "@tests/factories";
 
 describe("AuthProvider Port (interface contract)", () => {
+  const user = createUser({ email: "test@example.com", name: "Test User" });
+  const mockAuthProvider = createMockAuthProvider({}, user);
+
   // Evita: implementação de auth não seguir o contrato, quebrando o use case que depende dele
   it("signInWithEmail returns AuthResult with user on success", async () => {
-    const result = await mockAuthProvider.signInWithEmail("test@example.com", "Senh@123");
+    const result = await mockAuthProvider.signInWithEmail("test@example.com", VALID_PASSWORD);
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.user.email).toBe("test@example.com");
@@ -40,7 +24,7 @@ describe("AuthProvider Port (interface contract)", () => {
 
   // Evita: signUp não seguir o mesmo contrato AuthResult, quebrando o RegisterUseCase
   it("signUp returns AuthResult with user on success", async () => {
-    const result = await mockAuthProvider.signUp("new@example.com", "Senh@123", "Novo");
+    const result = await mockAuthProvider.signUp("new@example.com", VALID_PASSWORD, "Novo");
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.user).toBeDefined();
@@ -54,8 +38,8 @@ describe("AuthProvider Port (interface contract)", () => {
 
   // Evita: getUser retornar null silenciosamente quando o usuário existe, quebrando o dashboard
   it("getUser returns user object", async () => {
-    const user = await mockAuthProvider.getUser();
-    expect(user).toBeDefined();
-    expect(user!.id).toMatch(/^[0-9a-f]{8}-/i);
+    const result = await mockAuthProvider.getUser();
+    expect(result).toBeDefined();
+    expect(result!.id).toMatch(/^[0-9a-f]{8}-/i);
   });
 });

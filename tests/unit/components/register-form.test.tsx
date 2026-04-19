@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { RegisterForm } from "@/components/auth/register-form";
+import { createRegisterInput, INVALID_EMAIL } from "@tests/factories";
 
 describe("RegisterForm", () => {
   beforeEach(() => {
@@ -48,11 +49,12 @@ describe("RegisterForm", () => {
   // Evita: submeter formulário com email inválido, gastando request no backend
   it("shows validation error for invalid email on submit", async () => {
     const user = userEvent.setup();
+    const input = createRegisterInput();
 
-    await user.type(screen.getByLabelText("Nome completo"), "João");
-    await user.type(screen.getByLabelText("E-mail"), "invalido");
-    await user.type(screen.getByLabelText("Senha"), "Senh@123");
-    await user.type(screen.getByLabelText("Confirmar senha"), "Senh@123");
+    await user.type(screen.getByLabelText("Nome completo"), input.name);
+    await user.type(screen.getByLabelText("E-mail"), INVALID_EMAIL);
+    await user.type(screen.getByLabelText("Senha"), input.password);
+    await user.type(screen.getByLabelText("Confirmar senha"), input.confirmPassword);
     await user.click(screen.getByRole("button", { name: "Criar conta" }));
 
     expect(await screen.findByText(/e-mail válido/i)).toBeInTheDocument();
@@ -61,10 +63,11 @@ describe("RegisterForm", () => {
   // Evita: aceitar senhas que não coincidem, gerando cadastro com senha desconhecida
   it("shows validation error when passwords do not match", async () => {
     const user = userEvent.setup();
+    const input = createRegisterInput();
 
-    await user.type(screen.getByLabelText("Nome completo"), "João");
-    await user.type(screen.getByLabelText("E-mail"), "joao@example.com");
-    await user.type(screen.getByLabelText("Senha"), "Senh@123");
+    await user.type(screen.getByLabelText("Nome completo"), input.name);
+    await user.type(screen.getByLabelText("E-mail"), input.email);
+    await user.type(screen.getByLabelText("Senha"), input.password);
     await user.type(screen.getByLabelText("Confirmar senha"), "OutraSenha");
     await user.click(screen.getByRole("button", { name: "Criar conta" }));
 

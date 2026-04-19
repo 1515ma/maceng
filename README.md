@@ -8,14 +8,63 @@ Plataforma profissional de cálculos técnicos para engenharia mecânica. Dimens
 
 | Métrica | Valor |
 |---|---|
+| **Total de linhas de código (TS/TSX)** | 3.695 |
+| **Linhas de produção (src/)** | 1.741 |
+| **Linhas de teste (tests/)** | 1.156 |
+| **Linhas de config (root)** | 77 |
+| **Linhas SQL (migrations)** | 116 |
+| **Linhas CSS** | 86 |
 | **Suites de teste** | 23 |
 | **Testes unitários + integração** | 139 (todos passando) |
 | **Arquivos de produção (.ts/.tsx)** | 37 |
 | **Arquivos de teste (.test.ts/.tsx)** | 23 |
+| **Arquivos de factory (tests/factories)** | 4 |
 | **Migrations SQL** | 1 (schema completo) |
 | **Regras de negócio (.cursor/rules)** | 4 (Architecture, TDD, DevSecOps, Performance) |
-| **Inputs do usuário na construção** | 17 |
+| **Inputs do usuário na construção** | 20 |
 | **Vulnerabilidades (npm audit)** | 0 |
+
+---
+
+## Distribuição de Código por Pasta
+
+### Produção (src/) — 1.741 linhas
+
+| Pasta | Linhas | Responsabilidade |
+|---|---|---|
+| `src/app/` | 907 | Páginas, layouts, API routes (Next.js App Router) |
+| `src/components/` | 607 | Componentes UI: layout, auth, seções institucionais |
+| `src/infra/` | 122 | Supabase clients, auth provider, migrations SQL |
+| `src/core/` | 104 | Entidades, schemas Zod, ports, use cases (camada pura) |
+| `src/lib/` | 1 | Constantes compartilhadas |
+| `src/styles/` | 86 | CSS global + tema Tailwind (azul/branco + dark) |
+| `src/modules/` | 0 | Estruturado (15 módulos), aguardando implementação |
+| `src/adapters/` | 0 | Estruturado, aguardando implementação |
+
+### Testes (tests/) — 1.156 linhas
+
+| Pasta | Linhas | Responsabilidade |
+|---|---|---|
+| `tests/unit/components/` | 552 | Testes de 13 componentes UI |
+| `tests/unit/core/` | 292 | Testes de schemas, use cases, entity, port |
+| `tests/unit/security/` | 76 | Testes de security headers (OWASP) |
+| `tests/factories/` | 73 | Factories: User, AuthProvider, Credentials |
+| `tests/unit/pages/` | 60 | Testes de páginas login e cadastro |
+| `tests/__mocks__/` | 56 | Mocks de framer-motion e next-themes |
+| `tests/integration/` | 46 | Teste de integração da homepage |
+| `tests/setup.ts` | 1 | Setup do Jest |
+
+### Configuração (root) — 319 linhas
+
+| Arquivo | Linhas | Responsabilidade |
+|---|---|---|
+| `jest.config.ts` | 19 | Config Jest com aliases e mocks |
+| `next.config.ts` | 59 | Security headers, CSP, HSTS |
+| `tsconfig.json` | 24 | TypeScript com paths `@/` e `@tests/` |
+| `.github/workflows/pipeline.yml` | 38 | CI/CD: SCA + testes + CodeQL |
+| `.gitignore` | 82 | Proteção de secrets, deps, builds |
+| `package.json` | 44 | Dependências e scripts |
+| `SQL migrations` | 116 | Schema do banco (profiles, subscriptions, calculations) |
 
 ---
 
@@ -34,12 +83,15 @@ Plataforma profissional de cálculos técnicos para engenharia mecânica. Dimens
 | 9 | Crie TDD para o código feito | Setup completo de testes: Jest, RTL, mocks de framer-motion e next-themes, 65 testes |
 | 10 | Depois de passar nos testes, você refatorou? | Refatoração: YAGNI, DRY (Logo, CONTAINER_CLASS, CalculatorPreview), Footer como Server Component |
 | 11 | As outras regras você rodou corretamente? | Auditoria extra: removido `unsafe-eval` do CSP em produção, testes para Logo e CalculatorPreview |
-| 12 | Colocar comentários em português nos testes | Todos os 74 testes anotados com `// Evita:` explicando o erro prevenido |
+| 12 | Colocar comentários em português nos testes | Todos os testes anotados com `// Evita:` explicando o erro prevenido |
 | 13 | Criar tela de login com Google, seguindo as regras | TDD completo: LoginSchema (Zod), LoginForm, LoginPage, 20 novos testes |
 | 14 | Tudo será ligado com Supabase e Railway. Qual passo tomar? | Plano de infra: Entity User, Port AuthProvider, LoginUseCase, Supabase clients, SQL migration |
 | 15 | Vamos para o Supabase | Infra completa: 3 Supabase clients, Entity, Port, Use Case, API routes, migration SQL com RLS |
 | 16 | Devo ativar RLS automático? + Configuração do Google OAuth | Orientação: manter desabilitado (controle manual via migrations) + passo a passo Google Cloud Console |
 | 17 | Criar tela de cadastro | TDD completo: RegisterSchema, RegisterUseCase, RegisterForm, RegisterPage, API route, 30 novos testes + refatoração DRY (GoogleButton, AuthDivider) |
+| 18 | Criar documentação do projeto | README.md completo com métricas, histórico, arquitetura, testes, roadmap |
+| 19 | Gerar .gitignore completo + conectar GitHub + CI/CD | .gitignore profissional, git init, primeiro push para github.com/1515ma/maceng, pipeline atualizado (CodeQL v3) |
+| 20 | Refatorar testes para padrão Factory | Criada pasta `tests/factories/` com UserFactory, AuthFactory, CredentialsFactory. 8 arquivos refatorados, 0 regressões |
 
 ---
 
@@ -65,7 +117,7 @@ Plataforma profissional de cálculos técnicos para engenharia mecânica. Dimens
 
 ```
 src/
-  core/                          ← Camada pura, ZERO deps externas
+  core/                          ← Camada pura, ZERO deps externas (104 linhas)
     entities/user.ts             ← Entidade User (UUID, planos, calculationsUsed)
     schemas/login-schema.ts      ← Validação Zod para login
     schemas/register-schema.ts   ← Validação Zod para cadastro
@@ -73,7 +125,7 @@ src/
     use-cases/login.ts           ← LoginUseCase (constructor injection)
     use-cases/register.ts        ← RegisterUseCase (constructor injection)
 
-  infra/                         ← Implementações (Supabase, DB)
+  infra/                         ← Implementações concretas (122 linhas)
     database/
       supabase-client.ts         ← Browser client (NEXT_PUBLIC_*)
       supabase-server.ts         ← Server client (cookies SSR)
@@ -83,12 +135,12 @@ src/
     services/
       supabase-auth-provider.ts  ← Implementação do port AuthProvider
 
-  components/
+  components/                    ← Componentes React (607 linhas)
     layout/                      ← Navbar, Footer, ThemeProvider
     ui/                          ← Logo, SectionHeading, CalculatorPreview
     auth/                        ← LoginForm, RegisterForm, GoogleButton, AuthDivider
 
-  app/
+  app/                           ← Next.js App Router (907 linhas)
     (site)/                      ← Página institucional pública
     (auth)/                      ← Login, Cadastro (layout centralizado)
     api/auth/                    ← API routes: login, register, callback
@@ -96,6 +148,13 @@ src/
 
   lib/constants.ts               ← Constantes compartilhadas
   styles/globals.css             ← Tema customizado (azul/branco + dark mode)
+
+tests/
+  factories/                     ← Padrão Factory para dados de teste (73 linhas)
+    user-factory.ts              ← createUser() com overrides
+    auth-factory.ts              ← createMockAuthProvider() com jest.fn()
+    credentials-factory.ts       ← createLoginInput(), createRegisterInput(), constantes
+    index.ts                     ← Barrel export
 ```
 
 ---
@@ -199,8 +258,8 @@ Cada usuário só lê/edita seus próprios dados. Policies configuradas para SEL
 | `cta.test.tsx` | 3 | Headline, CTA link, textos de confiança |
 | `logo.test.tsx` | 3 | Marca, link home, ícone SVG |
 | `calculator-preview.test.tsx` | 5 | Campos de entrada, fórmula, resultado, badge aprovação |
-| `login-form.test.tsx` | 10 | Inputs, tipos, validação, autocomplete, links, Google |
-| `register-form.test.tsx` | 11 | 4 campos, tipos, validação, senhas coincidentes, autocomplete |
+| `login-form.test.tsx` | 10 | Inputs, tipos, validação, autocomplete, links, Google (usa Factory) |
+| `register-form.test.tsx` | 11 | 4 campos, tipos, validação, senhas coincidentes, autocomplete (usa Factory) |
 
 ### Testes unitários — Páginas
 
@@ -221,6 +280,16 @@ Cada usuário só lê/edita seus próprios dados. Policies configuradas para SEL
 |---|---|---|
 | `home.test.tsx` | 8 | Todas as 7 seções renderizadas juntas + contagem |
 
+### Test Factories (padrão Factory)
+
+| Factory | Arquivo | Função |
+|---|---|---|
+| `createUser()` | `user-factory.ts` | Gera entidade User com UUID incremental e overrides |
+| `createMockAuthProvider()` | `auth-factory.ts` | Gera mock completo do AuthProvider com jest.fn() |
+| `createLoginInput()` | `credentials-factory.ts` | Gera dados de login (email + senha) |
+| `createRegisterInput()` | `credentials-factory.ts` | Gera dados de cadastro (nome + email + senha + confirmação) |
+| `VALID_PASSWORD`, `SHORT_PASSWORD`, `INVALID_EMAIL` | `credentials-factory.ts` | Constantes reutilizáveis de teste |
+
 ---
 
 ## Regras de Governança (.cursor/rules)
@@ -233,6 +302,19 @@ Cada usuário só lê/edita seus próprios dados. Policies configuradas para SEL
 | **Performance** | `performance.mdc` | Big O, indexes, N+1 prevention, streams, pagination |
 
 Cada teste inclui um comentário `// Evita:` em português explicando qual erro ou regressão aquele teste previne.
+
+---
+
+## CI/CD (GitHub Actions)
+
+**Repositório:** [github.com/1515ma/maceng](https://github.com/1515ma/maceng)
+
+O pipeline roda automaticamente a cada push e pull request na branch `main`:
+
+| Job | O que faz |
+|---|---|
+| `audit_and_test` | `npm ci` → `npm audit` (SCA) → `npm run lint` → `npm test` (139 testes) |
+| `codeql` | Análise estática de segurança com CodeQL v3 (JavaScript/TypeScript) |
 
 ---
 
@@ -278,6 +360,9 @@ SUPABASE_SERVICE_ROLE_KEY=sua-service-role-key
 - [x] Schema do banco (profiles, subscriptions, calculations)
 - [x] Clean Architecture (Entity, Port, Use Case)
 - [x] 139 testes com comentários em português
+- [x] Test Factories (padrão Factory)
+- [x] GitHub + CI/CD (SCA + testes + CodeQL)
+- [x] .gitignore profissional
 - [ ] Tela de recuperação de senha
 - [ ] Dashboard do usuário
 - [ ] Módulos de cálculo (15 módulos de eng. mecânica)

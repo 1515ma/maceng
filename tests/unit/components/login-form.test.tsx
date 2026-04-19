@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LoginForm } from "@/components/auth/login-form";
+import { createLoginInput, INVALID_EMAIL, VALID_PASSWORD } from "@tests/factories";
 
 describe("LoginForm", () => {
   beforeEach(() => {
@@ -46,9 +47,10 @@ describe("LoginForm", () => {
   // Evita: formulário submeter dados sem validação, enviando requests inválidos ao backend
   it("shows validation error for invalid email on submit", async () => {
     const user = userEvent.setup();
+    const { password } = createLoginInput();
 
-    await user.type(screen.getByLabelText("E-mail"), "invalido");
-    await user.type(screen.getByLabelText("Senha"), "Senh@123");
+    await user.type(screen.getByLabelText("E-mail"), INVALID_EMAIL);
+    await user.type(screen.getByLabelText("Senha"), password);
     await user.click(screen.getByRole("button", { name: "Entrar" }));
 
     expect(await screen.findByText(/e-mail válido/i)).toBeInTheDocument();
@@ -57,8 +59,9 @@ describe("LoginForm", () => {
   // Evita: aceitar senha curta no front, desperdiçando request e dando UX ruim ao invés de feedback imediato
   it("shows validation error for short password on submit", async () => {
     const user = userEvent.setup();
+    const { email } = createLoginInput();
 
-    await user.type(screen.getByLabelText("E-mail"), "user@example.com");
+    await user.type(screen.getByLabelText("E-mail"), email);
     await user.type(screen.getByLabelText("Senha"), "123");
     await user.click(screen.getByRole("button", { name: "Entrar" }));
 

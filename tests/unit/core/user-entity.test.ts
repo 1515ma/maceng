@@ -1,14 +1,11 @@
-import { User, SubscriptionPlan } from "@/core/entities/user";
+import { SubscriptionPlan } from "@/core/entities/user";
+import { createUser } from "@tests/factories";
 
 describe("User Entity", () => {
-  const validUser: User = {
-    id: "550e8400-e29b-41d4-a716-446655440000",
+  const validUser = createUser({
     email: "engenheiro@example.com",
     name: "João Silva",
-    plan: "free",
-    calculationsUsed: 0,
-    createdAt: new Date("2026-01-01"),
-  };
+  });
 
   // Evita: entidade User aceitar plano que não existe no produto, gerando inconsistência com Stripe
   it("only accepts valid subscription plans", () => {
