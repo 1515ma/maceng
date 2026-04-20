@@ -60,10 +60,15 @@ export class SupabaseAuthProvider implements AuthProvider {
     await this.supabase.auth.signOut();
   }
 
-  async sendPasswordResetEmail(email: string): Promise<PasswordResetEmailResult> {
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
+  async sendPasswordResetEmail(
+    email: string,
+    redirectTo: string,
+  ): Promise<PasswordResetEmailResult> {
+    // redirectTo é sempre uma URL absoluta construída pela camada de borda
+    // (API route) a partir do `origin` da request. Não podemos depender de
+    // `window` aqui porque este provider roda server-side.
     const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${origin}/redefinir-senha`,
+      redirectTo,
     });
 
     if (error) {

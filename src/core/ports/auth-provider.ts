@@ -18,6 +18,9 @@ export interface AuthProvider {
   signInWithGoogle(): Promise<GoogleAuthResult>;
   signOut(): Promise<void>;
   getUser(): Promise<User | null>;
-  sendPasswordResetEmail(email: string): Promise<PasswordResetEmailResult>;
+  sendPasswordResetEmail(
+    email: string,
+    redirectTo: string,
+  ): Promise<PasswordResetEmailResult>;
   updatePassword(newPassword: string): Promise<AuthResult>;
 }

@@ -1,6 +1,8 @@
 import { RequestPasswordResetUseCase } from "@/core/use-cases/request-password-reset";
 import { createMockAuthProvider, createPasswordResetInput, INVALID_EMAIL } from "@tests/factories";
 
+const REDIRECT = "https://maceng.example/api/auth/callback?next=/redefinir-senha";
+
 describe("RequestPasswordResetUseCase", () => {
   const input = createPasswordResetInput();
 
@@ -9,7 +11,7 @@ describe("RequestPasswordResetUseCase", () => {
     const mock = createMockAuthProvider();
     const useCase = new RequestPasswordResetUseCase(mock);
 
-    const result = await useCase.execute("");
+    const result = await useCase.execute("", REDIRECT);
 
     expect(result.success).toBe(false);
     expect(mock.sendPasswordResetEmail).not.toHaveBeenCalled();
@@ -20,21 +22,21 @@ describe("RequestPasswordResetUseCase", () => {
     const mock = createMockAuthProvider();
     const useCase = new RequestPasswordResetUseCase(mock);
 
-    const result = await useCase.execute(INVALID_EMAIL);
+    const result = await useCase.execute(INVALID_EMAIL, REDIRECT);
 
     expect(result.success).toBe(false);
     expect(mock.sendPasswordResetEmail).not.toHaveBeenCalled();
   });
 
   // Evita: pedido válido não chegar ao provider, bloqueando recuperação legítima
-  it("calls sendPasswordResetEmail with valid email", async () => {
+  it("calls sendPasswordResetEmail with valid email and redirectTo", async () => {
     const mock = createMockAuthProvider();
     const useCase = new RequestPasswordResetUseCase(mock);
 
-    const result = await useCase.execute(input.email);
+    const result = await useCase.execute(input.email, REDIRECT);
 
     expect(result.success).toBe(true);
-    expect(mock.sendPasswordResetEmail).toHaveBeenCalledWith(input.email);
+    expect(mock.sendPasswordResetEmail).toHaveBeenCalledWith(input.email, REDIRECT);
   });
 
   // Evita: vazar informação sobre existência do email (enumeration) — sempre retornar sucesso genérico
@@ -44,7 +46,7 @@ describe("RequestPasswordResetUseCase", () => {
     });
     const useCase = new RequestPasswordResetUseCase(mock);
 
-    const result = await useCase.execute("desconhecido@example.com");
+    const result = await useCase.execute("desconhecido@example.com", REDIRECT);
 
     // DevSecOps: para prevenir user enumeration (OWASP A07), a resposta ao usuário deve ser sempre sucesso
     expect(result.success).toBe(true);
@@ -57,7 +59,7 @@ describe("RequestPasswordResetUseCase", () => {
     });
     const useCase = new RequestPasswordResetUseCase(mock);
 
-    const result = await useCase.execute(input.email);
+    const result = await useCase.execute(input.email, REDIRECT);
 
     // Mesmo em erro interno, mantém contrato de não vazar detalhes ao cliente
     expect(result.success).toBe(true);

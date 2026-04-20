@@ -7,7 +7,10 @@ export class RequestPasswordResetUseCase {
 
   // DevSecOps (OWASP A07): após validação de formato, a resposta é sempre success=true
   // para prevenir user enumeration via erro/sucesso distintos.
-  async execute(email: string): Promise<PasswordResetEmailResult> {
+  async execute(
+    email: string,
+    redirectTo: string,
+  ): Promise<PasswordResetEmailResult> {
     const validation = PasswordResetSchema.safeParse({ email });
 
     if (!validation.success) {
@@ -15,7 +18,10 @@ export class RequestPasswordResetUseCase {
     }
 
     try {
-      await this.authProvider.sendPasswordResetEmail(validation.data.email);
+      await this.authProvider.sendPasswordResetEmail(
+        validation.data.email,
+        redirectTo,
+      );
     } catch {
       // Silencia falhas internas (SMTP, rede) para não vazar informação operacional
     }

@@ -13,7 +13,9 @@ export function createMockAuthProvider(
     signInWithGoogle: jest.fn(async () => ({ success: true as const, redirectUrl: "https://google.com" })),
     signOut: jest.fn(async () => {}),
     getUser: jest.fn(async () => mockUser),
-    sendPasswordResetEmail: jest.fn(async () => ({ success: true as const })),
+    sendPasswordResetEmail: jest.fn(async (_email: string, _redirectTo: string) => ({
+      success: true as const,
+    })),
     updatePassword: jest.fn(async (): Promise<AuthResult> => ({ success: true, user: mockUser })),
     ...overrides,
   };

@@ -45,8 +45,21 @@ describe("AuthProvider Port (interface contract)", () => {
 
   // Evita: port sem envio de email de recuperação, quebrando o RequestPasswordResetUseCase
   it("sendPasswordResetEmail resolves with success flag", async () => {
-    const result = await mockAuthProvider.sendPasswordResetEmail("user@example.com");
+    const result = await mockAuthProvider.sendPasswordResetEmail(
+      "user@example.com",
+      "https://maceng.example/api/auth/callback?next=/redefinir-senha",
+    );
     expect(result.success).toBe(true);
+  });
+
+  // Evita: redirectTo relativo quebrar o link no email (Supabase exige URL absoluta) —
+  // este contrato obriga toda implementação do port a aceitar o parâmetro.
+  it("sendPasswordResetEmail requires redirectTo as second argument", async () => {
+    const spy = jest.fn(async () => ({ success: true as const }));
+    const provider = createMockAuthProvider({ sendPasswordResetEmail: spy });
+
+    await provider.sendPasswordResetEmail("u@e.com", "https://site/callback?next=/r");
+    expect(spy).toHaveBeenCalledWith("u@e.com", "https://site/callback?next=/r");
   });
 
   // Evita: port sem método de atualização de senha, quebrando o fluxo de reset
