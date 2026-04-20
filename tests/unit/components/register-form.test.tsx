@@ -1,7 +1,32 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { RegisterForm } from "@/components/auth/register-form";
 import { createRegisterInput, INVALID_EMAIL } from "@tests/factories";
+
+jest.mock("@/adapters/http/auth-client", () => ({
+  postRegister: jest.fn(),
+}));
+
+import { postRegister } from "@/adapters/http/auth-client";
+import { useRouter } from "next/navigation";
+
+const postRegisterMock = postRegister as jest.Mock;
+const routerPush = jest.fn();
+const routerRefresh = jest.fn();
+
+beforeEach(() => {
+  postRegisterMock.mockReset();
+  routerPush.mockReset();
+  routerRefresh.mockReset();
+  (useRouter as jest.Mock).mockReturnValue({
+    push: routerPush,
+    refresh: routerRefresh,
+    replace: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+    prefetch: jest.fn(),
+  });
+});
 
 describe("RegisterForm", () => {
   beforeEach(() => {
@@ -80,5 +105,57 @@ describe("RegisterForm", () => {
     expect(screen.getByLabelText("E-mail")).toHaveAttribute("autoComplete", "email");
     expect(screen.getByLabelText("Senha")).toHaveAttribute("autoComplete", "new-password");
     expect(screen.getByLabelText("Confirmar senha")).toHaveAttribute("autoComplete", "new-password");
+  });
+
+  // Evita: submit válido não chamar a API, quebrando o cadastro end-to-end
+  it("chama postRegister com todos os campos quando submit é válido", async () => {
+    postRegisterMock.mockResolvedValue({ success: true });
+    const user = userEvent.setup();
+    const input = createRegisterInput();
+
+    await user.type(screen.getByLabelText("Nome completo"), input.name);
+    await user.type(screen.getByLabelText("E-mail"), input.email);
+    await user.type(screen.getByLabelText("Senha"), input.password);
+    await user.type(screen.getByLabelText("Confirmar senha"), input.confirmPassword);
+    await user.click(screen.getByRole("button", { name: "Criar conta" }));
+
+    await waitFor(() =>
+      expect(postRegisterMock).toHaveBeenCalledWith(
+        input.name,
+        input.email,
+        input.password,
+        input.confirmPassword,
+      ),
+    );
+  });
+
+  // Evita: cadastro bem-sucedido não levar o usuário ao dashboard
+  it("redireciona para /dashboard após cadastro bem-sucedido", async () => {
+    postRegisterMock.mockResolvedValue({ success: true });
+    const user = userEvent.setup();
+    const input = createRegisterInput();
+
+    await user.type(screen.getByLabelText("Nome completo"), input.name);
+    await user.type(screen.getByLabelText("E-mail"), input.email);
+    await user.type(screen.getByLabelText("Senha"), input.password);
+    await user.type(screen.getByLabelText("Confirmar senha"), input.confirmPassword);
+    await user.click(screen.getByRole("button", { name: "Criar conta" }));
+
+    await waitFor(() => expect(routerPush).toHaveBeenCalledWith("/dashboard"));
+  });
+
+  // Evita: erro do backend (ex.: email duplicado) ficar invisível ao usuário
+  it("exibe erro retornado pela API", async () => {
+    postRegisterMock.mockResolvedValue({ success: false, error: "E-mail já cadastrado" });
+    const user = userEvent.setup();
+    const input = createRegisterInput();
+
+    await user.type(screen.getByLabelText("Nome completo"), input.name);
+    await user.type(screen.getByLabelText("E-mail"), input.email);
+    await user.type(screen.getByLabelText("Senha"), input.password);
+    await user.type(screen.getByLabelText("Confirmar senha"), input.confirmPassword);
+    await user.click(screen.getByRole("button", { name: "Criar conta" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("E-mail já cadastrado");
   });
 });

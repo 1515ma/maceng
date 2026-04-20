@@ -3,22 +3,27 @@
 import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { LoginSchema } from "@/core/schemas/login-schema";
 import { GoogleSignInField } from "@/components/auth/google-sign-in-field";
 import { AuthDivider } from "@/components/auth/auth-divider";
+import { postLogin } from "@/adapters/http/auth-client";
 
 export function LoginForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [serverError, setServerError] = useState<string | undefined>();
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrors({});
+    setServerError(undefined);
 
     const result = LoginSchema.safeParse({ email, password });
-
     if (!result.success) {
       const fieldErrors = result.error.flatten().fieldErrors;
       setErrors({
@@ -28,7 +33,16 @@ export function LoginForm() {
       return;
     }
 
-    // TODO: chamar use case de autenticação via adapter
+    setSubmitting(true);
+    const response = await postLogin(result.data.email, result.data.password);
+    if (!response.success) {
+      setServerError(response.error ?? "Erro ao entrar");
+      setSubmitting(false);
+      return;
+    }
+
+    router.push("/dashboard");
+    router.refresh();
   }
 
   return (
@@ -100,11 +114,18 @@ export function LoginForm() {
           </Link>
         </div>
 
+        {serverError && (
+          <p role="alert" className="text-sm text-red-500 text-center">
+            {serverError}
+          </p>
+        )}
+
         <button
           type="submit"
-          className="w-full rounded-xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-brand-600/25 hover:bg-brand-700 hover:shadow-brand-600/40 transition-all duration-300"
+          disabled={submitting}
+          className="w-full rounded-xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-brand-600/25 hover:bg-brand-700 hover:shadow-brand-600/40 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Entrar
+          {submitting ? "Entrando..." : "Entrar"}
         </button>
       </form>
 

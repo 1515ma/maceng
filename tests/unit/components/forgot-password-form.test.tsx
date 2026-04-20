@@ -1,7 +1,20 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 import { createPasswordResetInput, INVALID_EMAIL } from "@tests/factories";
+
+jest.mock("@/adapters/http/auth-client", () => ({
+  postPasswordReset: jest.fn(),
+}));
+
+import { postPasswordReset } from "@/adapters/http/auth-client";
+
+const postPasswordResetMock = postPasswordReset as jest.Mock;
+
+beforeEach(() => {
+  postPasswordResetMock.mockReset();
+  postPasswordResetMock.mockResolvedValue({ success: true });
+});
 
 describe("ForgotPasswordForm", () => {
   beforeEach(() => {
@@ -51,5 +64,16 @@ describe("ForgotPasswordForm", () => {
 
     // DevSecOps: mensagem genérica (sem confirmar se o email existe) — previne user enumeration
     expect(await screen.findByText(/Se o e-mail estiver cadastrado/i)).toBeInTheDocument();
+  });
+
+  // Evita: submit não chamar a API de reset, impedindo envio real do link
+  it("chama postPasswordReset com o email informado", async () => {
+    const user = userEvent.setup();
+    const input = createPasswordResetInput();
+
+    await user.type(screen.getByLabelText("E-mail"), input.email);
+    await user.click(screen.getByRole("button", { name: /Enviar link/i }));
+
+    await waitFor(() => expect(postPasswordResetMock).toHaveBeenCalledWith(input.email));
   });
 });

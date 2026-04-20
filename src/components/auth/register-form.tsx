@@ -3,24 +3,29 @@
 import { useState } from "react";
 import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { RegisterSchema } from "@/core/schemas/register-schema";
 import { GoogleSignInField } from "@/components/auth/google-sign-in-field";
 import { AuthDivider } from "@/components/auth/auth-divider";
+import { postRegister } from "@/adapters/http/auth-client";
 
 export function RegisterForm() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
+  const [serverError, setServerError] = useState<string | undefined>();
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrors({});
+    setServerError(undefined);
 
     const result = RegisterSchema.safeParse({ name, email, password, confirmPassword });
-
     if (!result.success) {
       const fieldErrors = result.error.flatten().fieldErrors as Record<
         string,
@@ -35,7 +40,16 @@ export function RegisterForm() {
       return;
     }
 
-    // TODO: chamar API route /api/auth/register
+    setSubmitting(true);
+    const response = await postRegister(name, email, password, confirmPassword);
+    if (!response.success) {
+      setServerError(response.error ?? "Erro ao criar conta");
+      setSubmitting(false);
+      return;
+    }
+
+    router.push("/dashboard");
+    router.refresh();
   }
 
   return (
@@ -136,11 +150,18 @@ export function RegisterForm() {
           {errors.confirmPassword && <p className="mt-1 text-xs text-red-500">{errors.confirmPassword}</p>}
         </div>
 
+        {serverError && (
+          <p role="alert" className="text-sm text-red-500 text-center">
+            {serverError}
+          </p>
+        )}
+
         <button
           type="submit"
-          className="w-full rounded-xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-brand-600/25 hover:bg-brand-700 hover:shadow-brand-600/40 transition-all duration-300"
+          disabled={submitting}
+          className="w-full rounded-xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-brand-600/25 hover:bg-brand-700 hover:shadow-brand-600/40 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Criar conta
+          {submitting ? "Criando conta..." : "Criar conta"}
         </button>
       </form>
 

@@ -1,7 +1,32 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LoginForm } from "@/components/auth/login-form";
-import { createLoginInput, INVALID_EMAIL, VALID_PASSWORD } from "@tests/factories";
+import { createLoginInput, INVALID_EMAIL } from "@tests/factories";
+
+jest.mock("@/adapters/http/auth-client", () => ({
+  postLogin: jest.fn(),
+}));
+
+import { postLogin } from "@/adapters/http/auth-client";
+import { useRouter } from "next/navigation";
+
+const postLoginMock = postLogin as jest.Mock;
+const routerPush = jest.fn();
+const routerRefresh = jest.fn();
+
+beforeEach(() => {
+  postLoginMock.mockReset();
+  routerPush.mockReset();
+  routerRefresh.mockReset();
+  (useRouter as jest.Mock).mockReturnValue({
+    push: routerPush,
+    refresh: routerRefresh,
+    replace: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+    prefetch: jest.fn(),
+  });
+});
 
 describe("LoginForm", () => {
   beforeEach(() => {
@@ -72,5 +97,68 @@ describe("LoginForm", () => {
   it("has autocomplete attributes for email and password", () => {
     expect(screen.getByLabelText("E-mail")).toHaveAttribute("autoComplete", "email");
     expect(screen.getByLabelText("Senha")).toHaveAttribute("autoComplete", "current-password");
+  });
+
+  // Evita: submit válido não chamar a API, quebrando o login end-to-end
+  it("chama postLogin com email e senha quando submit é válido", async () => {
+    postLoginMock.mockResolvedValue({ success: true });
+    const user = userEvent.setup();
+    const { email, password } = createLoginInput();
+
+    await user.type(screen.getByLabelText("E-mail"), email);
+    await user.type(screen.getByLabelText("Senha"), password);
+    await user.click(screen.getByRole("button", { name: "Entrar" }));
+
+    await waitFor(() => expect(postLoginMock).toHaveBeenCalledWith(email, password));
+  });
+
+  // Evita: após login bem-sucedido, usuário ficar na tela de login por falta de redirect
+  it("redireciona para /dashboard após login bem-sucedido", async () => {
+    postLoginMock.mockResolvedValue({ success: true });
+    const user = userEvent.setup();
+    const { email, password } = createLoginInput();
+
+    await user.type(screen.getByLabelText("E-mail"), email);
+    await user.type(screen.getByLabelText("Senha"), password);
+    await user.click(screen.getByRole("button", { name: "Entrar" }));
+
+    await waitFor(() => expect(routerPush).toHaveBeenCalledWith("/dashboard"));
+    expect(routerRefresh).toHaveBeenCalled();
+  });
+
+  // Evita: erro do servidor não aparecer na tela, deixando o usuário sem saber o motivo da falha
+  it("exibe mensagem de erro retornada pela API", async () => {
+    postLoginMock.mockResolvedValue({ success: false, error: "Credenciais inválidas" });
+    const user = userEvent.setup();
+    const { email, password } = createLoginInput();
+
+    await user.type(screen.getByLabelText("E-mail"), email);
+    await user.type(screen.getByLabelText("Senha"), password);
+    await user.click(screen.getByRole("button", { name: "Entrar" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Credenciais inválidas");
+    expect(routerPush).not.toHaveBeenCalled();
+  });
+
+  // Evita: double-submit, gerando múltiplas tentativas de login enquanto a primeira está pendente
+  it("desabilita o botão durante o envio", async () => {
+    let resolveFn: (v: { success: boolean }) => void = () => {};
+    postLoginMock.mockReturnValue(
+      new Promise<{ success: boolean }>((resolve) => {
+        resolveFn = resolve;
+      }),
+    );
+    const user = userEvent.setup();
+    const { email, password } = createLoginInput();
+
+    await user.type(screen.getByLabelText("E-mail"), email);
+    await user.type(screen.getByLabelText("Senha"), password);
+    await user.click(screen.getByRole("button", { name: "Entrar" }));
+
+    const button = screen.getByRole("button", { name: /Entrando/i });
+    expect(button).toBeDisabled();
+
+    resolveFn({ success: true });
+    await waitFor(() => expect(routerPush).toHaveBeenCalled());
   });
 });

@@ -4,25 +4,30 @@ import { useState } from "react";
 import { Mail, ArrowLeft, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { PasswordResetSchema } from "@/core/schemas/password-reset-schema";
+import { postPasswordReset } from "@/adapters/http/auth-client";
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | undefined>();
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(undefined);
 
     const result = PasswordResetSchema.safeParse({ email });
-
     if (!result.success) {
       setError(result.error.flatten().fieldErrors.email?.[0]);
       return;
     }
 
+    setSubmitting(true);
+    // Anti-enumeration (OWASP A07): ignora o resultado e mostra a mesma mensagem
+    // genérica, independentemente de o e-mail existir ou não no banco.
+    await postPasswordReset(result.data.email);
+    setSubmitting(false);
     setSubmitted(true);
-    // TODO: chamar API route /api/auth/password-reset
   }
 
   if (submitted) {
@@ -76,9 +81,10 @@ export function ForgotPasswordForm() {
 
         <button
           type="submit"
-          className="w-full rounded-xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-brand-600/25 hover:bg-brand-700 hover:shadow-brand-600/40 transition-all duration-300"
+          disabled={submitting}
+          className="w-full rounded-xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-brand-600/25 hover:bg-brand-700 hover:shadow-brand-600/40 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Enviar link de recuperação
+          {submitting ? "Enviando..." : "Enviar link de recuperação"}
         </button>
       </form>
 

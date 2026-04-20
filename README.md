@@ -9,20 +9,20 @@ Plataforma profissional de cálculos técnicos para engenharia mecânica. Dimens
 
 | Métrica                                   | Valor                                         |
 | ----------------------------------------- | --------------------------------------------- |
-| **Total de linhas de código (TS/TSX)**    | 4.648                                         |
-| **Linhas de produção (src/)**             | 2.724                                         |
-| **Linhas de teste (tests/)**              | 1.924                                         |
+| **Total de linhas de código (TS/TSX)**    | 5.082                                         |
+| **Linhas de produção (src/)**             | 2.848                                         |
+| **Linhas de teste (tests/)**              | 2.234                                         |
 | **Linhas de config (root)**               | 79                                            |
 | **Linhas SQL (migrations)**               | 116                                           |
 | **Linhas CSS**                            | 86                                            |
-| **Suites de teste**                       | 41                                            |
-| **Testes unitários + integração**         | 223 (todos passando)                          |
-| **Arquivos de produção (.ts/.tsx)**       | 59                                            |
-| **Arquivos de teste (.test.ts/.tsx)**     | 41                                            |
+| **Suites de teste**                       | 42                                            |
+| **Testes unitários + integração**         | 242 (todos passando)                          |
+| **Arquivos de produção (.ts/.tsx)**       | 60                                            |
+| **Arquivos de teste (.test.ts/.tsx)**     | 42                                            |
 | **Arquivos de factory (tests/factories)** | 4                                             |
 | **Migrations SQL**                        | 1 (schema completo)                           |
 | **Regras de negócio (.cursor/rules)**     | 4 (Architecture, TDD, DevSecOps, Performance) |
-| **Inputs do usuário na construção**       | 23                                            |
+| **Inputs do usuário na construção**       | 24                                            |
 | **Vulnerabilidades (npm audit)**          | 0                                             |
 
 
@@ -30,19 +30,19 @@ Plataforma profissional de cálculos técnicos para engenharia mecânica. Dimens
 
 ## Distribuição de Código por Pasta
 
-### Produção (src/) — 2.724 linhas
+### Produção (src/) — 2.848 linhas
 
 
-| Pasta             | Linhas | Responsabilidade                                                 |
-| ----------------- | ------ | ---------------------------------------------------------------- |
-| `src/app/`        | 1.122  | Páginas, layouts, API routes (Next.js App Router)                |
-| `src/components/` | 1.019  | Componentes UI: layout, auth, dashboard (módulos), seções        |
-| `src/core/`       | 412    | Entidades, schemas Zod, ports, use cases, catálogo (camada pura) |
-| `src/infra/`      | 145    | Supabase clients, auth provider, migrations SQL                  |
-| `src/adapters/`   | 25     | Adapters HTTP (ex.: startGoogleSignIn no browser)                |
-| `src/styles/`     | 86     | CSS global + tema Tailwind (azul/branco + dark)                  |
-| `src/lib/`        | 1      | Constantes compartilhadas                                        |
-| `src/modules/`    | 0      | Reservado para calculadoras (cada módulo terá sua pasta)         |
+| Pasta             | Linhas | Responsabilidade                                                   |
+| ----------------- | ------ | ------------------------------------------------------------------ |
+| `src/app/`        | 1.123  | Páginas, layouts, API routes (Next.js App Router)                  |
+| `src/components/` | 1.086  | Componentes UI: layout, auth (com loading/erro HTTP), dashboard    |
+| `src/core/`       | 412    | Entidades, schemas Zod, ports, use cases, catálogo (camada pura)   |
+| `src/infra/`      | 145    | Supabase clients, auth provider, migrations SQL                    |
+| `src/adapters/`   | 81     | HTTP: auth-client (postLogin/Register/PasswordReset) + Google OAuth|
+| `src/styles/`     | 86     | CSS global + tema Tailwind (azul/branco + dark)                    |
+| `src/lib/`        | 1      | Constantes compartilhadas                                          |
+| `src/modules/`    | 0      | Reservado para calculadoras (cada módulo terá sua pasta)           |
 
 
 ### Testes (tests/) — 1.924 linhas
@@ -105,6 +105,7 @@ Plataforma profissional de cálculos técnicos para engenharia mecânica. Dimens
 | 21  | Criar fluxo de esqueceu/redefinir senha (TDD + regras)               | TDD completo: 2 schemas Zod, 2 use cases, port expandido, 2 forms, 2 páginas, 2 API routes, 42 novos testes + refactor DRY (firstValidationError)   |
 | 22  | Fazer o login via Google funcionar                                   | GoogleButton com onClick/loading, adapter `startGoogleSignIn`, `GoogleSignInField` (DRY), dashboard protegido, SignOutButton, 19 novos testes       |
 | 23  | Criar o dashboard da engenharia mecânica (15 módulos)                | Entidade `Module`, catálogo `MECHANICAL_MODULES` com 15 entradas, `ModuleCard`, grid no dashboard, rota `/dashboard/[slug]` com auth guard e 404    |
+| 24  | Deixar login, cadastro e Google funcionando ponta a ponta            | Adapter `auth-client` (postLogin/Register/PasswordReset/PasswordUpdate), 4 forms integrados via fetch, loading/erro HTTP, redirect `/dashboard`, 19 novos testes |
 
 
 ---
@@ -165,7 +166,8 @@ src/
                                     GoogleButton, GoogleSignInField, AuthDivider, SignOutButton
     dashboard/                    ← DashboardContent + ModuleCard (grid dos 15 módulos)
 
-  adapters/                       ← Adapters de borda (25 linhas)
+  adapters/                       ← Adapters de borda (81 linhas)
+    http/auth-client.ts           ← postLogin / postRegister / postPasswordReset / postPasswordUpdate
     http/google-sign-in.ts        ← performGoogleSignIn (puro) + startGoogleSignIn (browser)
 
   app/                            ← Next.js App Router (1.122 linhas)
@@ -269,7 +271,7 @@ Cada usuário só lê/edita seus próprios dados. Policies configuradas para SEL
 
 ---
 
-## Testes (223 testes, 41 suites)
+## Testes (242 testes, 42 suites)
 
 ### Testes unitários — Core (camada pura)
 
@@ -307,10 +309,10 @@ Cada usuário só lê/edita seus próprios dados. Policies configuradas para SEL
 | `cta.test.tsx`                  | 3      | Headline, CTA link, textos de confiança                                     |
 | `logo.test.tsx`                 | 3      | Marca, link home, ícone SVG                                                 |
 | `calculator-preview.test.tsx`   | 5      | Campos de entrada, fórmula, resultado, badge aprovação                      |
-| `login-form.test.tsx`           | 10     | Inputs, tipos, validação, autocomplete, links, Google (usa Factory)         |
-| `register-form.test.tsx`        | 11     | 4 campos, tipos, validação, senhas coincidentes, autocomplete (usa Factory) |
-| `forgot-password-form.test.tsx` | 6      | Campo email, validação, link voltar, mensagem anti-enumeration              |
-| `reset-password-form.test.tsx`  | 6      | Inputs de senha, autocomplete=new-password, divergência, tamanho mínimo     |
+| `login-form.test.tsx`           | 14     | Inputs, validação, Google, **submit→postLogin, redirect /dashboard, erro HTTP, botão disabled durante submit** |
+| `register-form.test.tsx`        | 14     | 4 campos, senhas coincidentes, **submit→postRegister, redirect /dashboard, erro HTTP**            |
+| `forgot-password-form.test.tsx` | 7      | Email, validação, anti-enumeration, **submit→postPasswordReset**                                  |
+| `reset-password-form.test.tsx`  | 9      | Inputs, divergência, mínimo, **submit→postPasswordUpdate, redirect /dashboard, erro HTTP**        |
 | `google-button.test.tsx`        | 6      | Rótulo, type=button, onClick, loading disabled, texto loading, ícone SVG    |
 | `google-sign-in-field.test.tsx` | 3      | Renderização, chamada ao adapter, exibição de erro OAuth                    |
 | `dashboard-content.test.tsx`    | 7      | Saudação, plano, cálculos usados, botão sair, grid dos 15 módulos           |
@@ -321,12 +323,12 @@ Cada usuário só lê/edita seus próprios dados. Policies configuradas para SEL
 ### Testes unitários — Páginas
 
 
-| Suite                           | Testes | O que valida                               |
-| ------------------------------- | ------ | ------------------------------------------ |
-| `login-page.test.tsx`           | 5      | Heading, Logo, form, Google OAuth, divider |
-| `register-page.test.tsx`        | 5      | Heading, Logo, form, Google OAuth, divider |
-| `forgot-password-page.test.tsx` | 4      | Heading, Logo, form de email, helper text  |
-| `reset-password-page.test.tsx`  | 3      | Heading, Logo, form de nova senha          |
+| Suite                           | Testes | O que valida                                                                  |
+| ------------------------------- | ------ | ----------------------------------------------------------------------------- |
+| `login-page.test.tsx`           | 5      | Heading, Logo, form, Google OAuth, divider                                    |
+| `register-page.test.tsx`        | 5      | Heading, Logo, form, Google OAuth, divider                                    |
+| `forgot-password-page.test.tsx` | 4      | Heading, Logo, form de email, helper text                                     |
+| `reset-password-page.test.tsx`  | 3      | Heading, Logo, form de nova senha                                             |
 | `module-detail-page.test.tsx`   | 4      | notFound em slug inválido, nome do módulo, lista de calculadoras, link voltar |
 
 
@@ -344,6 +346,7 @@ Cada usuário só lê/edita seus próprios dados. Policies configuradas para SEL
 | Suite                          | Testes | O que valida                                                            |
 | ------------------------------ | ------ | ----------------------------------------------------------------------- |
 | `start-google-sign-in.test.ts` | 3      | Throw em falha, redirect em sucesso, propagação de exceções do provider |
+| `auth-client.test.ts`          | 8      | POST p/ 4 rotas (/login, /register, /password-reset, /password-update), erros HTTP, falha de rede |
 
 
 ### Testes de integração
@@ -394,7 +397,7 @@ O pipeline roda automaticamente a cada push e pull request na branch `main`:
 
 | Job              | O que faz                                                               |
 | ---------------- | ----------------------------------------------------------------------- |
-| `audit_and_test` | `npm ci` → `npm audit` (SCA) → `npm run lint` → `npm test` (223 testes) |
+| `audit_and_test` | `npm ci` → `npm audit` (SCA) → `npm run lint` → `npm test` (242 testes) |
 | `codeql`         | Análise estática de segurança com CodeQL v3 (JavaScript/TypeScript)     |
 
 
@@ -445,12 +448,12 @@ SUPABASE_SERVICE_ROLE_KEY=sua-service-role-key
 - Infraestrutura Supabase (client, server, admin)
 - Schema do banco (profiles, subscriptions, calculations)
 - Clean Architecture (Entity, Port, Use Case, Adapters)
-- 223 testes com comentários em português
+- 242 testes com comentários em português
 - Dashboard com catálogo dos 15 módulos mecânicos (cards + páginas placeholder)
+- Autenticação end-to-end (login, cadastro, recuperar, redefinir) via fetch + Supabase
 - Test Factories (padrão Factory)
 - GitHub + CI/CD (SCA + testes + CodeQL)
 - .gitignore profissional
-- Integração fetch nos forms (POST real para API routes)
 - Módulos de cálculo (15 módulos de eng. mecânica)
 - Integração Stripe (pagamentos)
 - Deploy Railway

@@ -1,7 +1,32 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 import { createPasswordUpdateInput, SHORT_PASSWORD } from "@tests/factories";
+
+jest.mock("@/adapters/http/auth-client", () => ({
+  postPasswordUpdate: jest.fn(),
+}));
+
+import { postPasswordUpdate } from "@/adapters/http/auth-client";
+import { useRouter } from "next/navigation";
+
+const postPasswordUpdateMock = postPasswordUpdate as jest.Mock;
+const routerPush = jest.fn();
+const routerRefresh = jest.fn();
+
+beforeEach(() => {
+  postPasswordUpdateMock.mockReset();
+  routerPush.mockReset();
+  routerRefresh.mockReset();
+  (useRouter as jest.Mock).mockReturnValue({
+    push: routerPush,
+    refresh: routerRefresh,
+    replace: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+    prefetch: jest.fn(),
+  });
+});
 
 describe("ResetPasswordForm", () => {
   beforeEach(() => {
@@ -52,5 +77,46 @@ describe("ResetPasswordForm", () => {
     await user.click(screen.getByRole("button", { name: /Redefinir senha/i }));
 
     expect(await screen.findByText(/senhas não coincidem/i)).toBeInTheDocument();
+  });
+
+  // Evita: reset válido não chamar a API, deixando a senha antiga ativa
+  it("chama postPasswordUpdate com as duas senhas quando válido", async () => {
+    postPasswordUpdateMock.mockResolvedValue({ success: true });
+    const user = userEvent.setup();
+    const input = createPasswordUpdateInput();
+
+    await user.type(screen.getByLabelText("Nova senha"), input.password);
+    await user.type(screen.getByLabelText("Confirmar nova senha"), input.confirmPassword);
+    await user.click(screen.getByRole("button", { name: /Redefinir senha/i }));
+
+    await waitFor(() =>
+      expect(postPasswordUpdateMock).toHaveBeenCalledWith(input.password, input.confirmPassword),
+    );
+  });
+
+  // Evita: após redefinir, usuário continuar na tela em vez de ir ao dashboard já logado
+  it("redireciona para /dashboard após sucesso", async () => {
+    postPasswordUpdateMock.mockResolvedValue({ success: true });
+    const user = userEvent.setup();
+    const input = createPasswordUpdateInput();
+
+    await user.type(screen.getByLabelText("Nova senha"), input.password);
+    await user.type(screen.getByLabelText("Confirmar nova senha"), input.confirmPassword);
+    await user.click(screen.getByRole("button", { name: /Redefinir senha/i }));
+
+    await waitFor(() => expect(routerPush).toHaveBeenCalledWith("/dashboard"));
+  });
+
+  // Evita: erro (token expirado etc.) não ser mostrado, deixando o usuário sem diagnóstico
+  it("exibe mensagem de erro retornada pela API", async () => {
+    postPasswordUpdateMock.mockResolvedValue({ success: false, error: "Link expirado" });
+    const user = userEvent.setup();
+    const input = createPasswordUpdateInput();
+
+    await user.type(screen.getByLabelText("Nova senha"), input.password);
+    await user.type(screen.getByLabelText("Confirmar nova senha"), input.confirmPassword);
+    await user.click(screen.getByRole("button", { name: /Redefinir senha/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Link expirado");
   });
 });
