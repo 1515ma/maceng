@@ -11,6 +11,7 @@ const config: Config = {
     "^@tests/(.*)$": "<rootDir>/tests/$1",
     "^framer-motion$": "<rootDir>/tests/__mocks__/framer-motion.tsx",
     "^next-themes$": "<rootDir>/tests/__mocks__/next-themes.tsx",
+    "^next/navigation$": "<rootDir>/tests/__mocks__/next-navigation.tsx",
   },
   testMatch: [
     "<rootDir>/tests/**/*.test.ts",

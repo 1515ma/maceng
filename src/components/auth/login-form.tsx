@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { LoginSchema } from "@/core/schemas/login-schema";
-import { GoogleButton } from "@/components/auth/google-button";
+import { GoogleSignInField } from "@/components/auth/google-sign-in-field";
 import { AuthDivider } from "@/components/auth/auth-divider";
 
 export function LoginForm() {
@@ -33,7 +33,7 @@ export function LoginForm() {
 
   return (
     <div className="w-full space-y-6">
-      <GoogleButton label="Entrar com Google" />
+      <GoogleSignInField label="Entrar com Google" />
       <AuthDivider />
 
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>

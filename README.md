@@ -9,20 +9,20 @@ Plataforma profissional de cálculos técnicos para engenharia mecânica. Dimens
 
 | Métrica                                   | Valor                                         |
 | ----------------------------------------- | --------------------------------------------- |
-| **Total de linhas de código (TS/TSX)**    | 3.734                                         |
-| **Linhas de produção (src/)**             | 2.120                                         |
-| **Linhas de teste (tests/)**              | 1.536                                         |
-| **Linhas de config (root)**               | 78                                            |
+| **Total de linhas de código (TS/TSX)**    | 4.105                                         |
+| **Linhas de produção (src/)**             | 2.319                                         |
+| **Linhas de teste (tests/)**              | 1.707                                         |
+| **Linhas de config (root)**               | 79                                            |
 | **Linhas SQL (migrations)**               | 116                                           |
 | **Linhas CSS**                            | 86                                            |
-| **Suites de teste**                       | 32                                            |
-| **Testes unitários + integração**         | 181 (todos passando)                          |
-| **Arquivos de produção (.ts/.tsx)**       | 48                                            |
-| **Arquivos de teste (.test.ts/.tsx)**     | 32                                            |
+| **Suites de teste**                       | 37                                            |
+| **Testes unitários + integração**         | 200 (todos passando)                          |
+| **Arquivos de produção (.ts/.tsx)**       | 54                                            |
+| **Arquivos de teste (.test.ts/.tsx)**     | 37                                            |
 | **Arquivos de factory (tests/factories)** | 4                                             |
 | **Migrations SQL**                        | 1 (schema completo)                           |
 | **Regras de negócio (.cursor/rules)**     | 4 (Architecture, TDD, DevSecOps, Performance) |
-| **Inputs do usuário na construção**       | 21                                            |
+| **Inputs do usuário na construção**       | 22                                            |
 | **Vulnerabilidades (npm audit)**          | 0                                             |
 
 
@@ -30,33 +30,34 @@ Plataforma profissional de cálculos técnicos para engenharia mecânica. Dimens
 
 ## Distribuição de Código por Pasta
 
-### Produção (src/) — 2.120 linhas
+### Produção (src/) — 2.319 linhas
 
 
 | Pasta             | Linhas | Responsabilidade                                            |
 | ----------------- | ------ | ----------------------------------------------------------- |
-| `src/app/`        | 1.013  | Páginas, layouts, API routes (Next.js App Router)           |
-| `src/components/` | 783    | Componentes UI: layout, auth, seções institucionais         |
+| `src/app/`        | 1.041  | Páginas, layouts, API routes (Next.js App Router)           |
+| `src/components/` | 929    | Componentes UI: layout, auth, dashboard, seções             |
 | `src/core/`       | 178    | Entidades, schemas Zod, ports, use cases (camada pura)      |
 | `src/infra/`      | 145    | Supabase clients, auth provider, migrations SQL             |
+| `src/adapters/`   | 25     | Adapters HTTP (ex.: startGoogleSignIn no browser)           |
 | `src/styles/`     | 86     | CSS global + tema Tailwind (azul/branco + dark)             |
 | `src/lib/`        | 1      | Constantes compartilhadas                                   |
 | `src/modules/`    | 0      | Estruturado (15 módulos), aguardando implementação          |
-| `src/adapters/`   | 0      | Estruturado, aguardando implementação                       |
 
 
-### Testes (tests/) — 1.536 linhas
+### Testes (tests/) — 1.707 linhas
 
 
 | Pasta                    | Linhas | Responsabilidade                                     |
 | ------------------------ | ------ | ---------------------------------------------------- |
-| `tests/unit/components/` | 641    | Testes de 15 componentes UI                          |
+| `tests/unit/components/` | 765    | Testes de 20 componentes UI                          |
 | `tests/unit/core/`       | 510    | Testes de schemas, use cases, entity, port, helpers  |
 | `tests/unit/pages/`      | 105    | Testes de páginas: login, cadastro, recuperar senha  |
 | `tests/factories/`       | 102    | Factories: User, AuthProvider, Credentials           |
 | `tests/unit/security/`   | 76     | Testes de security headers (OWASP)                   |
-| `tests/__mocks__/`       | 56     | Mocks de framer-motion e next-themes                 |
+| `tests/__mocks__/`       | 69     | Mocks de framer-motion, next-themes, next/navigation |
 | `tests/integration/`     | 46     | Teste de integração da homepage                      |
+| `tests/unit/adapters/`   | 34     | Testes do adapter Google OAuth (performGoogleSignIn) |
 | `tests/setup.ts`         | 1      | Setup do Jest                                        |
 
 
@@ -102,6 +103,7 @@ Plataforma profissional de cálculos técnicos para engenharia mecânica. Dimens
 | 19  | Gerar .gitignore completo + conectar GitHub + CI/CD                  | .gitignore profissional, git init, primeiro push para github.com/1515ma/maceng, pipeline atualizado (CodeQL v3)                                     |
 | 20  | Refatorar testes para padrão Factory                                 | Criada pasta `tests/factories/` com UserFactory, AuthFactory, CredentialsFactory. 8 arquivos refatorados, 0 regressões                              |
 | 21  | Criar fluxo de esqueceu/redefinir senha (TDD + regras)               | TDD completo: 2 schemas Zod, 2 use cases, port expandido, 2 forms, 2 páginas, 2 API routes, 42 novos testes + refactor DRY (firstValidationError)   |
+| 22  | Fazer o login via Google funcionar                                   | GoogleButton com onClick/loading, adapter `startGoogleSignIn`, `GoogleSignInField` (DRY), dashboard protegido, SignOutButton, 19 novos testes       |
 
 
 ---
@@ -153,15 +155,20 @@ src/
     services/
       supabase-auth-provider.ts   ← Implementação do port AuthProvider
 
-  components/                     ← Componentes React (783 linhas)
+  components/                     ← Componentes React (929 linhas)
     layout/                       ← Navbar, Footer, ThemeProvider
     ui/                           ← Logo, SectionHeading, CalculatorPreview
     auth/                         ← LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm,
-                                    GoogleButton, AuthDivider
+                                    GoogleButton, GoogleSignInField, AuthDivider, SignOutButton
+    dashboard/                    ← DashboardContent (pós-login)
 
-  app/                            ← Next.js App Router (1.013 linhas)
+  adapters/                       ← Adapters de borda (25 linhas)
+    http/google-sign-in.ts        ← performGoogleSignIn (puro) + startGoogleSignIn (browser)
+
+  app/                            ← Next.js App Router (1.041 linhas)
     (site)/                       ← Página institucional pública
     (auth)/                       ← Login, Cadastro, Recuperar-senha, Redefinir-senha
+    (app)/dashboard/              ← Área privada (auth guard server-side)
     api/auth/                     ← login, register, callback, password-reset, password-update
     layout.tsx                    ← Root layout (Inter font, ThemeProvider)
 
@@ -258,7 +265,7 @@ Cada usuário só lê/edita seus próprios dados. Policies configuradas para SEL
 
 ---
 
-## Testes (181 testes, 32 suites)
+## Testes (200 testes, 37 suites)
 
 ### Testes unitários — Core (camada pura)
 
@@ -298,6 +305,10 @@ Cada usuário só lê/edita seus próprios dados. Policies configuradas para SEL
 | `register-form.test.tsx`        | 11     | 4 campos, tipos, validação, senhas coincidentes, autocomplete (usa Factory) |
 | `forgot-password-form.test.tsx` | 6      | Campo email, validação, link voltar, mensagem anti-enumeration              |
 | `reset-password-form.test.tsx`  | 6      | Inputs de senha, autocomplete=new-password, divergência, tamanho mínimo     |
+| `google-button.test.tsx`        | 6      | Rótulo, type=button, onClick, loading disabled, texto loading, ícone SVG    |
+| `google-sign-in-field.test.tsx` | 3      | Renderização, chamada ao adapter, exibição de erro OAuth                    |
+| `dashboard-content.test.tsx`    | 5      | Saudação (nome/email fallback), plano, cálculos usados, botão sair          |
+| `sign-out-button.test.tsx`      | 2      | Renderização + disparo do onSignOut                                         |
 
 
 ### Testes unitários — Páginas
@@ -317,6 +328,14 @@ Cada usuário só lê/edita seus próprios dados. Policies configuradas para SEL
 | Suite                      | Testes | O que valida                                                    |
 | -------------------------- | ------ | --------------------------------------------------------------- |
 | `security-headers.test.ts` | 9      | 7 headers HTTP, anti-eval em produção, cobertura total de rotas |
+
+
+### Testes unitários — Adapters
+
+
+| Suite                          | Testes | O que valida                                                              |
+| ------------------------------ | ------ | ------------------------------------------------------------------------- |
+| `start-google-sign-in.test.ts` | 3      | Throw em falha, redirect em sucesso, propagação de exceções do provider   |
 
 
 ### Testes de integração
@@ -367,7 +386,7 @@ O pipeline roda automaticamente a cada push e pull request na branch `main`:
 
 | Job              | O que faz                                                               |
 | ---------------- | ----------------------------------------------------------------------- |
-| `audit_and_test` | `npm ci` → `npm audit` (SCA) → `npm run lint` → `npm test` (181 testes) |
+| `audit_and_test` | `npm ci` → `npm audit` (SCA) → `npm run lint` → `npm test` (200 testes) |
 | `codeql`         | Análise estática de segurança com CodeQL v3 (JavaScript/TypeScript)     |
 
 
@@ -409,17 +428,20 @@ SUPABASE_SERVICE_ROLE_KEY=sua-service-role-key
 - Página institucional (7 seções)
 - Tema claro/escuro
 - Security headers (OWASP)
-- Tela de login (email + Google OAuth)
-- Tela de cadastro (email + Google OAuth)
+- Tela de login (email + Google OAuth funcional)
+- Tela de cadastro (email + Google OAuth funcional)
 - Tela de recuperação de senha (pedido + redefinição)
+- Google OAuth end-to-end (button → callback → dashboard)
+- Dashboard do usuário (rota privada com auth guard)
+- SignOut completo (cookies limpos + redirect)
 - Infraestrutura Supabase (client, server, admin)
 - Schema do banco (profiles, subscriptions, calculations)
-- Clean Architecture (Entity, Port, Use Case)
-- 181 testes com comentários em português
+- Clean Architecture (Entity, Port, Use Case, Adapters)
+- 200 testes com comentários em português
 - Test Factories (padrão Factory)
 - GitHub + CI/CD (SCA + testes + CodeQL)
 - .gitignore profissional
-- Dashboard do usuário
+- Integração fetch nos forms (POST real para API routes)
 - Módulos de cálculo (15 módulos de eng. mecânica)
 - Integração Stripe (pagamentos)
 - Deploy Railway

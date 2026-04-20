@@ -4,7 +4,7 @@ import { useState } from "react";
 import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { RegisterSchema } from "@/core/schemas/register-schema";
-import { GoogleButton } from "@/components/auth/google-button";
+import { GoogleSignInField } from "@/components/auth/google-sign-in-field";
 import { AuthDivider } from "@/components/auth/auth-divider";
 
 export function RegisterForm() {
@@ -37,7 +37,7 @@ export function RegisterForm() {
 
   return (
     <div className="w-full space-y-6">
-      <GoogleButton label="Cadastrar com Google" />
+      <GoogleSignInField label="Cadastrar com Google" />
       <AuthDivider />
 
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
