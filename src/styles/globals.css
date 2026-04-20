@@ -52,7 +52,7 @@
   scrollbar-color: var(--text-muted) transparent;
 }
 
-html {
+html[data-scroll-behavior="smooth"] {
   scroll-behavior: smooth;
 }
 
