@@ -9,20 +9,20 @@ Plataforma profissional de cálculos técnicos para engenharia mecânica. Dimens
 
 | Métrica                                   | Valor                                         |
 | ----------------------------------------- | --------------------------------------------- |
-| **Total de linhas de código (TS/TSX)**    | 5.082                                         |
-| **Linhas de produção (src/)**             | 2.848                                         |
-| **Linhas de teste (tests/)**              | 2.234                                         |
+| **Total de linhas de código (TS/TSX)**    | 6.050                                         |
+| **Linhas de produção (src/)**             | 3.248                                         |
+| **Linhas de teste (tests/)**              | 2.802                                         |
 | **Linhas de config (root)**               | 79                                            |
 | **Linhas SQL (migrations)**               | 116                                           |
 | **Linhas CSS**                            | 86                                            |
-| **Suites de teste**                       | 42                                            |
-| **Testes unitários + integração**         | 242 (todos passando)                          |
-| **Arquivos de produção (.ts/.tsx)**       | 60                                            |
-| **Arquivos de teste (.test.ts/.tsx)**     | 42                                            |
+| **Suites de teste**                       | 49                                            |
+| **Testes unitários + integração**         | 277 (todos passando)                          |
+| **Arquivos de produção (.ts/.tsx)**       | 65                                            |
+| **Arquivos de teste (.test.ts/.tsx)**     | 49                                            |
 | **Arquivos de factory (tests/factories)** | 4                                             |
 | **Migrations SQL**                        | 1 (schema completo)                           |
 | **Regras de negócio (.cursor/rules)**     | 4 (Architecture, TDD, DevSecOps, Performance) |
-| **Inputs do usuário na construção**       | 24                                            |
+| **Inputs do usuário na construção**       | 26                                            |
 | **Vulnerabilidades (npm audit)**          | 0                                             |
 
 
@@ -33,16 +33,16 @@ Plataforma profissional de cálculos técnicos para engenharia mecânica. Dimens
 ### Produção (src/) — 2.848 linhas
 
 
-| Pasta             | Linhas | Responsabilidade                                                   |
-| ----------------- | ------ | ------------------------------------------------------------------ |
-| `src/app/`        | 1.123  | Páginas, layouts, API routes (Next.js App Router)                  |
-| `src/components/` | 1.086  | Componentes UI: layout, auth (com loading/erro HTTP), dashboard    |
-| `src/core/`       | 412    | Entidades, schemas Zod, ports, use cases, catálogo (camada pura)   |
-| `src/infra/`      | 145    | Supabase clients, auth provider, migrations SQL                    |
-| `src/adapters/`   | 81     | HTTP: auth-client (postLogin/Register/PasswordReset) + Google OAuth|
-| `src/styles/`     | 86     | CSS global + tema Tailwind (azul/branco + dark)                    |
-| `src/lib/`        | 1      | Constantes compartilhadas                                          |
-| `src/modules/`    | 0      | Reservado para calculadoras (cada módulo terá sua pasta)           |
+| Pasta             | Linhas | Responsabilidade                                                    |
+| ----------------- | ------ | ------------------------------------------------------------------- |
+| `src/app/`        | 1.123  | Páginas, layouts, API routes (Next.js App Router)                   |
+| `src/components/` | 1.086  | Componentes UI: layout, auth (com loading/erro HTTP), dashboard     |
+| `src/core/`       | 412    | Entidades, schemas Zod, ports, use cases, catálogo (camada pura)    |
+| `src/infra/`      | 145    | Supabase clients, auth provider, migrations SQL                     |
+| `src/adapters/`   | 81     | HTTP: auth-client (postLogin/Register/PasswordReset) + Google OAuth |
+| `src/styles/`     | 86     | CSS global + tema Tailwind (azul/branco + dark)                     |
+| `src/lib/`        | 1      | Constantes compartilhadas                                           |
+| `src/modules/`    | 0      | Reservado para calculadoras (cada módulo terá sua pasta)            |
 
 
 ### Testes (tests/) — 1.924 linhas
@@ -80,32 +80,34 @@ Plataforma profissional de cálculos técnicos para engenharia mecânica. Dimens
 ## Histórico de Inputs do Usuário
 
 
-| #   | Input                                                                | Resultado                                                                                                                                           |
-| --- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Mapear o projeto legado Caleng como base                             | Análise técnica das funcionalidades do sistema legado                                                                                               |
-| 2   | Estrutura do projeto com 15 módulos de eng. mecânica + planos Stripe | Criação da estrutura completa de pastas (sem código)                                                                                                |
-| 3   | Como ativo o Composer?                                               | Orientação de uso do Cursor                                                                                                                         |
-| 4   | Criar página institucional azul/branco com dark mode e movimento     | Página institucional completa: Hero, Módulos, How It Works, Engineering Areas, Pricing, FAQ, CTA                                                    |
-| 5   | Você está seguindo as regras?                                        | Auditoria de conformidade com `.cursor/rules`                                                                                                       |
-| 6   | Confirmação para prosseguir                                          | Execução da auditoria                                                                                                                               |
-| 7   | Quero que leia as regras a cada input                                | Compromisso de seguir as 4 regras em todas as entregas                                                                                              |
-| 8   | Você executou as regras para a parte institucional?                  | Pen-test e correção de security headers no `next.config.ts`                                                                                         |
-| 9   | Crie TDD para o código feito                                         | Setup completo de testes: Jest, RTL, mocks de framer-motion e next-themes, 65 testes                                                                |
-| 10  | Depois de passar nos testes, você refatorou?                         | Refatoração: YAGNI, DRY (Logo, CONTAINER_CLASS, CalculatorPreview), Footer como Server Component                                                    |
-| 11  | As outras regras você rodou corretamente?                            | Auditoria extra: removido `unsafe-eval` do CSP em produção, testes para Logo e CalculatorPreview                                                    |
-| 12  | Colocar comentários em português nos testes                          | Todos os testes anotados com `// Evita:` explicando o erro prevenido                                                                                |
-| 13  | Criar tela de login com Google, seguindo as regras                   | TDD completo: LoginSchema (Zod), LoginForm, LoginPage, 20 novos testes                                                                              |
-| 14  | Tudo será ligado com Supabase e Railway. Qual passo tomar?           | Plano de infra: Entity User, Port AuthProvider, LoginUseCase, Supabase clients, SQL migration                                                       |
-| 15  | Vamos para o Supabase                                                | Infra completa: 3 Supabase clients, Entity, Port, Use Case, API routes, migration SQL com RLS                                                       |
-| 16  | Devo ativar RLS automático? + Configuração do Google OAuth           | Orientação: manter desabilitado (controle manual via migrations) + passo a passo Google Cloud Console                                               |
-| 17  | Criar tela de cadastro                                               | TDD completo: RegisterSchema, RegisterUseCase, RegisterForm, RegisterPage, API route, 30 novos testes + refatoração DRY (GoogleButton, AuthDivider) |
-| 18  | Criar documentação do projeto                                        | README.md completo com métricas, histórico, arquitetura, testes, roadmap                                                                            |
-| 19  | Gerar .gitignore completo + conectar GitHub + CI/CD                  | .gitignore profissional, git init, primeiro push para github.com/1515ma/maceng, pipeline atualizado (CodeQL v3)                                     |
-| 20  | Refatorar testes para padrão Factory                                 | Criada pasta `tests/factories/` com UserFactory, AuthFactory, CredentialsFactory. 8 arquivos refatorados, 0 regressões                              |
-| 21  | Criar fluxo de esqueceu/redefinir senha (TDD + regras)               | TDD completo: 2 schemas Zod, 2 use cases, port expandido, 2 forms, 2 páginas, 2 API routes, 42 novos testes + refactor DRY (firstValidationError)   |
-| 22  | Fazer o login via Google funcionar                                   | GoogleButton com onClick/loading, adapter `startGoogleSignIn`, `GoogleSignInField` (DRY), dashboard protegido, SignOutButton, 19 novos testes       |
-| 23  | Criar o dashboard da engenharia mecânica (15 módulos)                | Entidade `Module`, catálogo `MECHANICAL_MODULES` com 15 entradas, `ModuleCard`, grid no dashboard, rota `/dashboard/[slug]` com auth guard e 404    |
+| #   | Input                                                                | Resultado                                                                                                                                                        |
+| --- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Mapear o projeto legado Caleng como base                             | Análise técnica das funcionalidades do sistema legado                                                                                                            |
+| 2   | Estrutura do projeto com 15 módulos de eng. mecânica + planos Stripe | Criação da estrutura completa de pastas (sem código)                                                                                                             |
+| 3   | Como ativo o Composer?                                               | Orientação de uso do Cursor                                                                                                                                      |
+| 4   | Criar página institucional azul/branco com dark mode e movimento     | Página institucional completa: Hero, Módulos, How It Works, Engineering Areas, Pricing, FAQ, CTA                                                                 |
+| 5   | Você está seguindo as regras?                                        | Auditoria de conformidade com `.cursor/rules`                                                                                                                    |
+| 6   | Confirmação para prosseguir                                          | Execução da auditoria                                                                                                                                            |
+| 7   | Quero que leia as regras a cada input                                | Compromisso de seguir as 4 regras em todas as entregas                                                                                                           |
+| 8   | Você executou as regras para a parte institucional?                  | Pen-test e correção de security headers no `next.config.ts`                                                                                                      |
+| 9   | Crie TDD para o código feito                                         | Setup completo de testes: Jest, RTL, mocks de framer-motion e next-themes, 65 testes                                                                             |
+| 10  | Depois de passar nos testes, você refatorou?                         | Refatoração: YAGNI, DRY (Logo, CONTAINER_CLASS, CalculatorPreview), Footer como Server Component                                                                 |
+| 11  | As outras regras você rodou corretamente?                            | Auditoria extra: removido `unsafe-eval` do CSP em produção, testes para Logo e CalculatorPreview                                                                 |
+| 12  | Colocar comentários em português nos testes                          | Todos os testes anotados com `// Evita:` explicando o erro prevenido                                                                                             |
+| 13  | Criar tela de login com Google, seguindo as regras                   | TDD completo: LoginSchema (Zod), LoginForm, LoginPage, 20 novos testes                                                                                           |
+| 14  | Tudo será ligado com Supabase e Railway. Qual passo tomar?           | Plano de infra: Entity User, Port AuthProvider, LoginUseCase, Supabase clients, SQL migration                                                                    |
+| 15  | Vamos para o Supabase                                                | Infra completa: 3 Supabase clients, Entity, Port, Use Case, API routes, migration SQL com RLS                                                                    |
+| 16  | Devo ativar RLS automático? + Configuração do Google OAuth           | Orientação: manter desabilitado (controle manual via migrations) + passo a passo Google Cloud Console                                                            |
+| 17  | Criar tela de cadastro                                               | TDD completo: RegisterSchema, RegisterUseCase, RegisterForm, RegisterPage, API route, 30 novos testes + refatoração DRY (GoogleButton, AuthDivider)              |
+| 18  | Criar documentação do projeto                                        | README.md completo com métricas, histórico, arquitetura, testes, roadmap                                                                                         |
+| 19  | Gerar .gitignore completo + conectar GitHub + CI/CD                  | .gitignore profissional, git init, primeiro push para github.com/1515ma/maceng, pipeline atualizado (CodeQL v3)                                                  |
+| 20  | Refatorar testes para padrão Factory                                 | Criada pasta `tests/factories/` com UserFactory, AuthFactory, CredentialsFactory. 8 arquivos refatorados, 0 regressões                                           |
+| 21  | Criar fluxo de esqueceu/redefinir senha (TDD + regras)               | TDD completo: 2 schemas Zod, 2 use cases, port expandido, 2 forms, 2 páginas, 2 API routes, 42 novos testes + refactor DRY (firstValidationError)                |
+| 22  | Fazer o login via Google funcionar                                   | GoogleButton com onClick/loading, adapter `startGoogleSignIn`, `GoogleSignInField` (DRY), dashboard protegido, SignOutButton, 19 novos testes                    |
+| 23  | Criar o dashboard da engenharia mecânica (15 módulos)                | Entidade `Module`, catálogo `MECHANICAL_MODULES` com 15 entradas, `ModuleCard`, grid no dashboard, rota `/dashboard/[slug]` com auth guard e 404                 |
 | 24  | Deixar login, cadastro e Google funcionando ponta a ponta            | Adapter `auth-client` (postLogin/Register/PasswordReset/PasswordUpdate), 4 forms integrados via fetch, loading/erro HTTP, redirect `/dashboard`, 19 novos testes |
+| 25  | Redesign do dashboard parecido com a imagem (intuitivo)              | `ModuleCard` com identidade por módulo (15 temas de gradiente), hero com pill + título grande + subtítulo de normas, grid 1/2/3/4 colunas                       |
+| 26  | Consertar recuperação de senha + rodar testes das regras de segurança | Fix 2 bugs (redirectTo relativo + callback ignorando `next`), **rate limit em todos os auth endpoints** (DevSecOps), **auth-logger estruturado com hash SHA-256 de email** (anti-PII), site-url proxy-safe via `NEXT_PUBLIC_SITE_URL`, open-redirect allowlist, 35 novos testes |
 
 
 ---
@@ -271,7 +273,58 @@ Cada usuário só lê/edita seus próprios dados. Policies configuradas para SEL
 
 ---
 
-## Testes (242 testes, 42 suites)
+## Troubleshooting — email de recuperação de senha
+
+Se o email não chega, passe por **todos** esses pontos:
+
+### 1. Allowlist no Supabase
+
+Dashboard → **Authentication → URL Configuration**:
+
+- **Site URL**: `http://localhost:3000` (dev) ou sua URL pública (prod)
+- **Redirect URLs** (adicione **cada uma**):
+  - `http://localhost:3000/api/auth/callback`
+  - `http://localhost:3000/**`
+  - Sua URL de produção + `/api/auth/callback`
+
+Sem isso, o Supabase **rejeita silenciosamente** o `redirectTo` e o email **nunca sai**.
+
+### 2. Rate limit do SMTP default do Supabase
+
+O SMTP built-in do Supabase no **free tier** limita a **~2 emails/hora por projeto**.
+Se testou várias vezes em sequência, está bloqueado. Soluções:
+
+- Aguarde 1 hora, ou
+- Configure **SMTP custom** em Dashboard → Project Settings → Auth → SMTP Settings (recomendado: Resend, SendGrid, Mailgun — 100+ emails/mês grátis cada), ou
+- Use outro email de teste em outra janela de 1h
+
+### 3. `NEXT_PUBLIC_SITE_URL`
+
+Em **dev**, opcional (cai em `request.nextUrl.origin`).
+Em **produção atrás de proxy** (Vercel, Railway, Cloudflare), **obrigatória** — senão o link do email pode apontar para o host interno do container em vez do domínio público.
+
+### 4. Pasta de spam / promoções
+
+O remetente padrão `noreply@mail.app.supabase.io` frequentemente cai no spam
+(especialmente Gmail/Outlook). SMTP custom com domínio próprio resolve.
+
+### 5. Logs do nosso lado
+
+Toda requisição gera log estruturado em JSON no stdout do Next. Procure por:
+
+```json
+{"type":"password_reset_requested","success":true,"ip":"...","emailHash":"..."}
+{"type":"password_reset_rate_limited","severity":"warn",...}
+```
+
+Se não aparecer nenhum, a request nem saiu do cliente.
+
+### 6. Logs do Supabase
+
+Dashboard → **Authentication → Logs** mostra tentativas de envio e erros de SMTP/redirect.
+
+
+## Testes (277 testes, 49 suites)
 
 ### Testes unitários — Core (camada pura)
 
@@ -296,28 +349,28 @@ Cada usuário só lê/edita seus próprios dados. Policies configuradas para SEL
 ### Testes unitários — Componentes UI
 
 
-| Suite                           | Testes | O que valida                                                                |
-| ------------------------------- | ------ | --------------------------------------------------------------------------- |
-| `navbar.test.tsx`               | 7      | Logo, links, botões, acessibilidade (aria-label), rotas                     |
-| `footer.test.tsx`               | 6      | Logo, seções, links legais (LGPD), copyright dinâmico                       |
-| `hero.test.tsx`                 | 7      | Headline, badges, CTA, stats, calculator preview                            |
-| `modules.test.tsx`              | 4      | 15 módulos, contagem, descrições                                            |
-| `pricing.test.tsx`              | 9      | 3 planos, preços, limites, popular badge, links com ?plan=                  |
-| `faq.test.tsx`                  | 5      | 6 perguntas, accordion, disclaimer CREA/CONFEA                              |
-| `how-it-works.test.tsx`         | 4      | 4 passos, numeração, descrições                                             |
-| `engineering-areas.test.tsx`    | 5      | 4 áreas, status disponível/em breve, contagem                               |
-| `cta.test.tsx`                  | 3      | Headline, CTA link, textos de confiança                                     |
-| `logo.test.tsx`                 | 3      | Marca, link home, ícone SVG                                                 |
-| `calculator-preview.test.tsx`   | 5      | Campos de entrada, fórmula, resultado, badge aprovação                      |
+| Suite                           | Testes | O que valida                                                                                                   |
+| ------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------- |
+| `navbar.test.tsx`               | 7      | Logo, links, botões, acessibilidade (aria-label), rotas                                                        |
+| `footer.test.tsx`               | 6      | Logo, seções, links legais (LGPD), copyright dinâmico                                                          |
+| `hero.test.tsx`                 | 7      | Headline, badges, CTA, stats, calculator preview                                                               |
+| `modules.test.tsx`              | 4      | 15 módulos, contagem, descrições                                                                               |
+| `pricing.test.tsx`              | 9      | 3 planos, preços, limites, popular badge, links com ?plan=                                                     |
+| `faq.test.tsx`                  | 5      | 6 perguntas, accordion, disclaimer CREA/CONFEA                                                                 |
+| `how-it-works.test.tsx`         | 4      | 4 passos, numeração, descrições                                                                                |
+| `engineering-areas.test.tsx`    | 5      | 4 áreas, status disponível/em breve, contagem                                                                  |
+| `cta.test.tsx`                  | 3      | Headline, CTA link, textos de confiança                                                                        |
+| `logo.test.tsx`                 | 3      | Marca, link home, ícone SVG                                                                                    |
+| `calculator-preview.test.tsx`   | 5      | Campos de entrada, fórmula, resultado, badge aprovação                                                         |
 | `login-form.test.tsx`           | 14     | Inputs, validação, Google, **submit→postLogin, redirect /dashboard, erro HTTP, botão disabled durante submit** |
-| `register-form.test.tsx`        | 14     | 4 campos, senhas coincidentes, **submit→postRegister, redirect /dashboard, erro HTTP**            |
-| `forgot-password-form.test.tsx` | 7      | Email, validação, anti-enumeration, **submit→postPasswordReset**                                  |
-| `reset-password-form.test.tsx`  | 9      | Inputs, divergência, mínimo, **submit→postPasswordUpdate, redirect /dashboard, erro HTTP**        |
-| `google-button.test.tsx`        | 6      | Rótulo, type=button, onClick, loading disabled, texto loading, ícone SVG    |
-| `google-sign-in-field.test.tsx` | 3      | Renderização, chamada ao adapter, exibição de erro OAuth                    |
-| `dashboard-content.test.tsx`    | 7      | Saudação, plano, cálculos usados, botão sair, grid dos 15 módulos           |
-| `sign-out-button.test.tsx`      | 2      | Renderização + disparo do onSignOut                                         |
-| `module-card.test.tsx`          | 5      | Nome, descrição, link para /dashboard/{slug}, badge "Em breve"              |
+| `register-form.test.tsx`        | 14     | 4 campos, senhas coincidentes, **submit→postRegister, redirect /dashboard, erro HTTP**                         |
+| `forgot-password-form.test.tsx` | 7      | Email, validação, anti-enumeration, **submit→postPasswordReset**                                               |
+| `reset-password-form.test.tsx`  | 9      | Inputs, divergência, mínimo, **submit→postPasswordUpdate, redirect /dashboard, erro HTTP**                     |
+| `google-button.test.tsx`        | 6      | Rótulo, type=button, onClick, loading disabled, texto loading, ícone SVG                                       |
+| `google-sign-in-field.test.tsx` | 3      | Renderização, chamada ao adapter, exibição de erro OAuth                                                       |
+| `dashboard-content.test.tsx`    | 7      | Saudação, plano, cálculos usados, botão sair, grid dos 15 módulos                                              |
+| `sign-out-button.test.tsx`      | 2      | Renderização + disparo do onSignOut                                                                            |
+| `module-card.test.tsx`          | 5      | Nome, descrição, link para /dashboard/{slug}, badge "Em breve"                                                 |
 
 
 ### Testes unitários — Páginas
@@ -343,10 +396,17 @@ Cada usuário só lê/edita seus próprios dados. Policies configuradas para SEL
 ### Testes unitários — Adapters
 
 
-| Suite                          | Testes | O que valida                                                            |
-| ------------------------------ | ------ | ----------------------------------------------------------------------- |
-| `start-google-sign-in.test.ts` | 3      | Throw em falha, redirect em sucesso, propagação de exceções do provider |
+| Suite                          | Testes | O que valida                                                                                      |
+| ------------------------------ | ------ | ------------------------------------------------------------------------------------------------- |
+| `start-google-sign-in.test.ts` | 3      | Throw em falha, redirect em sucesso, propagação de exceções do provider                           |
 | `auth-client.test.ts`          | 8      | POST p/ 4 rotas (/login, /register, /password-reset, /password-update), erros HTTP, falha de rede |
+| `rate-limiter.test.ts`         | 5      | Janela deslizante, limite, isolamento por chave, O(1) amortizado                                  |
+| `auth-logger.test.ts`          | 5      | SHA-256 email, normalização, JSON estruturado, severity info/warn, sem PII plaintext             |
+| `site-url.test.ts`             | 7      | Origin fallback, `NEXT_PUBLIC_SITE_URL` proxy-safe, validação protocolo, IP real x-forwarded-for |
+| `password-reset-route.test.ts` | 7      | 429 + Retry-After, IP real, redirectTo proxy-safe, log estruturado, anti-enumeration             |
+| `auth-callback-route.test.ts`  | 5      | Next allowlist, open-redirect defense, exchange falha → /login?error, redirect para /dashboard   |
+| `login-route.test.ts`          | 3      | 429, log login_failed com reason, log login_success                                               |
+| `register-route.test.ts`       | 2      | 429, log register_success com IP real                                                             |
 
 
 ### Testes de integração
@@ -397,7 +457,7 @@ O pipeline roda automaticamente a cada push e pull request na branch `main`:
 
 | Job              | O que faz                                                               |
 | ---------------- | ----------------------------------------------------------------------- |
-| `audit_and_test` | `npm ci` → `npm audit` (SCA) → `npm run lint` → `npm test` (242 testes) |
+| `audit_and_test` | `npm ci` → `npm audit` (SCA) → `npm run lint` → `npm test` (277 testes) |
 | `codeql`         | Análise estática de segurança com CodeQL v3 (JavaScript/TypeScript)     |
 
 
@@ -448,7 +508,11 @@ SUPABASE_SERVICE_ROLE_KEY=sua-service-role-key
 - Infraestrutura Supabase (client, server, admin)
 - Schema do banco (profiles, subscriptions, calculations)
 - Clean Architecture (Entity, Port, Use Case, Adapters)
-- 242 testes com comentários em português
+- 277 testes com comentários em português
+- Rate limiting em `/api/auth/login`, `/register`, `/password-reset` (DevSecOps)
+- Logs estruturados de auth com hash SHA-256 do email (anti-PII)
+- Site URL proxy-safe via `NEXT_PUBLIC_SITE_URL` (funciona atrás de Vercel/Railway)
+- Open-redirect allowlist no `/api/auth/callback`
 - Dashboard com catálogo dos 15 módulos mecânicos (cards + páginas placeholder)
 - Autenticação end-to-end (login, cadastro, recuperar, redefinir) via fetch + Supabase
 - Test Factories (padrão Factory)
