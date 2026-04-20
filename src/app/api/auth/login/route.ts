@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from "@/infra/database/supabase-server";
 import { SupabaseAuthProvider } from "@/infra/services/supabase-auth-provider";
 import { LoginUseCase } from "@/core/use-cases/login";
 import { LoginSchema } from "@/core/schemas/login-schema";
+import { firstValidationError } from "@/core/schemas/validation-helpers";
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
@@ -17,7 +18,7 @@ export async function POST(request: NextRequest) {
   const validation = LoginSchema.safeParse(body);
   if (!validation.success) {
     return NextResponse.json(
-      { success: false, error: validation.error.errors[0].message },
+      { success: false, error: firstValidationError(validation) },
       { status: 400 },
     );
   }

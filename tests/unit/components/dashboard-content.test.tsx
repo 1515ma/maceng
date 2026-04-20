@@ -36,4 +36,17 @@ describe("DashboardContent", () => {
     render(<DashboardContent user={createUser()} />);
     expect(screen.getByRole("button", { name: /Sair/i })).toBeInTheDocument();
   });
+
+  // Evita: dashboard não listar os 15 módulos, deixando o usuário sem ponto de partida
+  it("renders a card for each of the 15 mechanical modules", () => {
+    render(<DashboardContent user={createUser()} />);
+    const links = screen.getAllByRole("link", { name: /Dimensionamento|Elementos de Fixação|Tolerâncias|Materiais|Componentes|Hidráulica|Processos|Motores|Molas|Custos|Ergonomia|Vedação|Soldagem|Conversor|Gestão/i });
+    expect(links.length).toBe(15);
+  });
+
+  // Evita: seção de engenharia sem heading, deixando a área sem contexto
+  it("renders 'Engenharia Mecânica' section heading", () => {
+    render(<DashboardContent user={createUser()} />);
+    expect(screen.getByRole("heading", { name: /Engenharia Mecânica/i })).toBeInTheDocument();
+  });
 });

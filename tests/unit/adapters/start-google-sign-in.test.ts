@@ -5,7 +5,7 @@ describe("performGoogleSignIn (adapter)", () => {
   // Evita: adapter silenciar erro do provider e deixar o usuário travado na tela de login
   it("throws when provider returns failure", async () => {
     const authProvider = createMockAuthProvider({
-      signInWithGoogle: jest.fn(async () => ({ success: false, error: "oauth_config" })),
+      signInWithGoogle: jest.fn(async () => ({ success: false as const, error: "oauth_config" })),
     });
     const redirect = jest.fn();
 

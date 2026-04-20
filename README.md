@@ -9,20 +9,20 @@ Plataforma profissional de cálculos técnicos para engenharia mecânica. Dimens
 
 | Métrica                                   | Valor                                         |
 | ----------------------------------------- | --------------------------------------------- |
-| **Total de linhas de código (TS/TSX)**    | 4.105                                         |
-| **Linhas de produção (src/)**             | 2.319                                         |
-| **Linhas de teste (tests/)**              | 1.707                                         |
+| **Total de linhas de código (TS/TSX)**    | 4.648                                         |
+| **Linhas de produção (src/)**             | 2.724                                         |
+| **Linhas de teste (tests/)**              | 1.924                                         |
 | **Linhas de config (root)**               | 79                                            |
 | **Linhas SQL (migrations)**               | 116                                           |
 | **Linhas CSS**                            | 86                                            |
-| **Suites de teste**                       | 37                                            |
-| **Testes unitários + integração**         | 200 (todos passando)                          |
-| **Arquivos de produção (.ts/.tsx)**       | 54                                            |
-| **Arquivos de teste (.test.ts/.tsx)**     | 37                                            |
+| **Suites de teste**                       | 41                                            |
+| **Testes unitários + integração**         | 223 (todos passando)                          |
+| **Arquivos de produção (.ts/.tsx)**       | 59                                            |
+| **Arquivos de teste (.test.ts/.tsx)**     | 41                                            |
 | **Arquivos de factory (tests/factories)** | 4                                             |
 | **Migrations SQL**                        | 1 (schema completo)                           |
 | **Regras de negócio (.cursor/rules)**     | 4 (Architecture, TDD, DevSecOps, Performance) |
-| **Inputs do usuário na construção**       | 22                                            |
+| **Inputs do usuário na construção**       | 23                                            |
 | **Vulnerabilidades (npm audit)**          | 0                                             |
 
 
@@ -30,35 +30,35 @@ Plataforma profissional de cálculos técnicos para engenharia mecânica. Dimens
 
 ## Distribuição de Código por Pasta
 
-### Produção (src/) — 2.319 linhas
+### Produção (src/) — 2.724 linhas
 
 
-| Pasta             | Linhas | Responsabilidade                                            |
-| ----------------- | ------ | ----------------------------------------------------------- |
-| `src/app/`        | 1.041  | Páginas, layouts, API routes (Next.js App Router)           |
-| `src/components/` | 929    | Componentes UI: layout, auth, dashboard, seções             |
-| `src/core/`       | 178    | Entidades, schemas Zod, ports, use cases (camada pura)      |
-| `src/infra/`      | 145    | Supabase clients, auth provider, migrations SQL             |
-| `src/adapters/`   | 25     | Adapters HTTP (ex.: startGoogleSignIn no browser)           |
-| `src/styles/`     | 86     | CSS global + tema Tailwind (azul/branco + dark)             |
-| `src/lib/`        | 1      | Constantes compartilhadas                                   |
-| `src/modules/`    | 0      | Estruturado (15 módulos), aguardando implementação          |
+| Pasta             | Linhas | Responsabilidade                                                 |
+| ----------------- | ------ | ---------------------------------------------------------------- |
+| `src/app/`        | 1.122  | Páginas, layouts, API routes (Next.js App Router)                |
+| `src/components/` | 1.019  | Componentes UI: layout, auth, dashboard (módulos), seções        |
+| `src/core/`       | 412    | Entidades, schemas Zod, ports, use cases, catálogo (camada pura) |
+| `src/infra/`      | 145    | Supabase clients, auth provider, migrations SQL                  |
+| `src/adapters/`   | 25     | Adapters HTTP (ex.: startGoogleSignIn no browser)                |
+| `src/styles/`     | 86     | CSS global + tema Tailwind (azul/branco + dark)                  |
+| `src/lib/`        | 1      | Constantes compartilhadas                                        |
+| `src/modules/`    | 0      | Reservado para calculadoras (cada módulo terá sua pasta)         |
 
 
-### Testes (tests/) — 1.707 linhas
+### Testes (tests/) — 1.924 linhas
 
 
-| Pasta                    | Linhas | Responsabilidade                                     |
-| ------------------------ | ------ | ---------------------------------------------------- |
-| `tests/unit/components/` | 765    | Testes de 20 componentes UI                          |
-| `tests/unit/core/`       | 510    | Testes de schemas, use cases, entity, port, helpers  |
-| `tests/unit/pages/`      | 105    | Testes de páginas: login, cadastro, recuperar senha  |
-| `tests/factories/`       | 102    | Factories: User, AuthProvider, Credentials           |
-| `tests/unit/security/`   | 76     | Testes de security headers (OWASP)                   |
-| `tests/__mocks__/`       | 69     | Mocks de framer-motion, next-themes, next/navigation |
-| `tests/integration/`     | 46     | Teste de integração da homepage                      |
-| `tests/unit/adapters/`   | 34     | Testes do adapter Google OAuth (performGoogleSignIn) |
-| `tests/setup.ts`         | 1      | Setup do Jest                                        |
+| Pasta                    | Linhas | Responsabilidade                                              |
+| ------------------------ | ------ | ------------------------------------------------------------- |
+| `tests/unit/components/` | 812    | Testes de 21 componentes UI (inclui ModuleCard)               |
+| `tests/unit/core/`       | 605    | Schemas, use cases, entity User, entity Module, port, helpers |
+| `tests/unit/pages/`      | 180    | Login, cadastro, recuperar senha, módulo detalhado            |
+| `tests/factories/`       | 102    | Factories: User, AuthProvider, Credentials                    |
+| `tests/unit/security/`   | 76     | Testes de security headers (OWASP)                            |
+| `tests/__mocks__/`       | 69     | Mocks de framer-motion, next-themes, next/navigation          |
+| `tests/integration/`     | 46     | Teste de integração da homepage                               |
+| `tests/unit/adapters/`   | 34     | Testes do adapter Google OAuth (performGoogleSignIn)          |
+| `tests/setup.ts`         | 5      | Setup do Jest (jest-dom + cleanup automático RTL)             |
 
 
 ### Configuração (root)
@@ -104,6 +104,7 @@ Plataforma profissional de cálculos técnicos para engenharia mecânica. Dimens
 | 20  | Refatorar testes para padrão Factory                                 | Criada pasta `tests/factories/` com UserFactory, AuthFactory, CredentialsFactory. 8 arquivos refatorados, 0 regressões                              |
 | 21  | Criar fluxo de esqueceu/redefinir senha (TDD + regras)               | TDD completo: 2 schemas Zod, 2 use cases, port expandido, 2 forms, 2 páginas, 2 API routes, 42 novos testes + refactor DRY (firstValidationError)   |
 | 22  | Fazer o login via Google funcionar                                   | GoogleButton com onClick/loading, adapter `startGoogleSignIn`, `GoogleSignInField` (DRY), dashboard protegido, SignOutButton, 19 novos testes       |
+| 23  | Criar o dashboard da engenharia mecânica (15 módulos)                | Entidade `Module`, catálogo `MECHANICAL_MODULES` com 15 entradas, `ModuleCard`, grid no dashboard, rota `/dashboard/[slug]` com auth guard e 404    |
 
 
 ---
@@ -132,8 +133,10 @@ Plataforma profissional de cálculos técnicos para engenharia mecânica. Dimens
 
 ```
 src/
-  core/                                 ← Camada pura, ZERO deps externas (178 linhas)
+  core/                                 ← Camada pura, ZERO deps externas (412 linhas)
     entities/user.ts                    ← Entidade User (UUID, planos, calculationsUsed)
+    entities/module.ts                  ← Entidade EngineeringModule + guard isEngineeringArea
+    data/mechanical-modules.ts          ← Catálogo dos 15 módulos (dados readonly)
     schemas/login-schema.ts             ← Validação Zod para login
     schemas/register-schema.ts          ← Validação Zod para cadastro
     schemas/password-reset-schema.ts    ← Validação Zod do e-mail de recuperação
@@ -155,20 +158,21 @@ src/
     services/
       supabase-auth-provider.ts   ← Implementação do port AuthProvider
 
-  components/                     ← Componentes React (929 linhas)
+  components/                     ← Componentes React (1.019 linhas)
     layout/                       ← Navbar, Footer, ThemeProvider
     ui/                           ← Logo, SectionHeading, CalculatorPreview
     auth/                         ← LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm,
                                     GoogleButton, GoogleSignInField, AuthDivider, SignOutButton
-    dashboard/                    ← DashboardContent (pós-login)
+    dashboard/                    ← DashboardContent + ModuleCard (grid dos 15 módulos)
 
   adapters/                       ← Adapters de borda (25 linhas)
     http/google-sign-in.ts        ← performGoogleSignIn (puro) + startGoogleSignIn (browser)
 
-  app/                            ← Next.js App Router (1.041 linhas)
+  app/                            ← Next.js App Router (1.122 linhas)
     (site)/                       ← Página institucional pública
     (auth)/                       ← Login, Cadastro, Recuperar-senha, Redefinir-senha
     (app)/dashboard/              ← Área privada (auth guard server-side)
+    (app)/dashboard/[slug]/       ← Página de cada módulo (generateStaticParams + notFound)
     api/auth/                     ← login, register, callback, password-reset, password-update
     layout.tsx                    ← Root layout (Inter font, ThemeProvider)
 
@@ -212,23 +216,23 @@ Cada usuário só lê/edita seus próprios dados. Policies configuradas para SEL
 ## Segurança (DevSecOps — OWASP Top 10)
 
 
-| Proteção                 | Implementação                                                          |
-| ------------------------ | ---------------------------------------------------------------------- |
-| Anti-IDOR                | UUIDs como PK em todas as tabelas                                      |
-| Validação de input       | Zod schemas em client + server (dupla validação)                       |
-| Anti-mass-assignment     | `.strip()` / `.transform()` remove campos extras                       |
-| CSP                      | Content-Security-Policy sem `unsafe-eval` em produção                  |
-| Anti-clickjacking        | X-Frame-Options: DENY + frame-ancestors: none                          |
-| HSTS                     | max-age=63072000; includeSubDomains; preload                           |
-| Anti-sniffing            | X-Content-Type-Options: nosniff                                        |
-| Anti-fingerprint         | poweredByHeader: false                                                 |
-| Permissions-Policy       | camera=(), microphone=(), geolocation=() bloqueados                    |
-| Secrets                  | Todas as chaves em `.env.local` (gitignored)                           |
-| RLS                      | Row Level Security no PostgreSQL por tabela                            |
-| Hashing                  | Supabase Auth usa BCrypt automaticamente                               |
-| OAuth                    | Google OAuth via Supabase (sem secret no client)                       |
-| Anti-enumeration (A07)   | `/api/auth/password-reset` sempre retorna 200 (não revela se e-mail existe) |
-| Reset seguro             | Supabase gera token de uso único, expira em 1h, redirect para redefinir-senha |
+| Proteção               | Implementação                                                                 |
+| ---------------------- | ----------------------------------------------------------------------------- |
+| Anti-IDOR              | UUIDs como PK em todas as tabelas                                             |
+| Validação de input     | Zod schemas em client + server (dupla validação)                              |
+| Anti-mass-assignment   | `.strip()` / `.transform()` remove campos extras                              |
+| CSP                    | Content-Security-Policy sem `unsafe-eval` em produção                         |
+| Anti-clickjacking      | X-Frame-Options: DENY + frame-ancestors: none                                 |
+| HSTS                   | max-age=63072000; includeSubDomains; preload                                  |
+| Anti-sniffing          | X-Content-Type-Options: nosniff                                               |
+| Anti-fingerprint       | poweredByHeader: false                                                        |
+| Permissions-Policy     | camera=(), microphone=(), geolocation=() bloqueados                           |
+| Secrets                | Todas as chaves em `.env.local` (gitignored)                                  |
+| RLS                    | Row Level Security no PostgreSQL por tabela                                   |
+| Hashing                | Supabase Auth usa BCrypt automaticamente                                      |
+| OAuth                  | Google OAuth via Supabase (sem secret no client)                              |
+| Anti-enumeration (A07) | `/api/auth/password-reset` sempre retorna 200 (não revela se e-mail existe)   |
+| Reset seguro           | Supabase gera token de uso único, expira em 1h, redirect para redefinir-senha |
 
 
 ---
@@ -265,24 +269,26 @@ Cada usuário só lê/edita seus próprios dados. Policies configuradas para SEL
 
 ---
 
-## Testes (200 testes, 37 suites)
+## Testes (223 testes, 41 suites)
 
 ### Testes unitários — Core (camada pura)
 
 
-| Suite                                       | Testes | O que valida                                                               |
-| ------------------------------------------- | ------ | -------------------------------------------------------------------------- |
-| `login-schema.test.ts`                      | 6      | Validação Zod: email, senha, strip de campos extras                        |
-| `register-schema.test.ts`                   | 8      | Validação Zod: nome, email, senha, confirmação, max length, strip          |
-| `password-reset-schema.test.ts`             | 4      | Validação Zod do email de recuperação + strip anti-mass-assignment         |
-| `password-update-schema.test.ts`            | 5      | Validação Zod da nova senha, coincidência, strip anti-mass-assignment      |
-| `user-entity.test.ts`                       | 5      | Formato UUID, planos válidos, campos obrigatórios                          |
-| `auth-provider-port.test.ts`                | 7      | Contrato da interface: signIn, signUp, Google, signOut, getUser, reset, update |
-| `login-use-case.test.ts`                    | 6      | Validação antes do provider, tratamento de erro, credenciais               |
-| `register-use-case.test.ts`                 | 6      | Validação antes do provider, senhas, erros, fluxo completo                 |
-| `request-password-reset-use-case.test.ts`   | 5      | Validação de email, anti-enumeration (OWASP A07), erros silenciosos        |
-| `update-password-use-case.test.ts`          | 5      | Validação de senha, coincidência, token expirado, erros inesperados        |
-| `validation-helpers.test.ts`                | 2      | Extração de erro Zod com fallback defensivo                                |
+| Suite                                     | Testes | O que valida                                                                   |
+| ----------------------------------------- | ------ | ------------------------------------------------------------------------------ |
+| `login-schema.test.ts`                    | 6      | Validação Zod: email, senha, strip de campos extras                            |
+| `register-schema.test.ts`                 | 8      | Validação Zod: nome, email, senha, confirmação, max length, strip              |
+| `password-reset-schema.test.ts`           | 4      | Validação Zod do email de recuperação + strip anti-mass-assignment             |
+| `password-update-schema.test.ts`          | 5      | Validação Zod da nova senha, coincidência, strip anti-mass-assignment          |
+| `user-entity.test.ts`                     | 5      | Formato UUID, planos válidos, campos obrigatórios                              |
+| `auth-provider-port.test.ts`              | 7      | Contrato da interface: signIn, signUp, Google, signOut, getUser, reset, update |
+| `login-use-case.test.ts`                  | 6      | Validação antes do provider, tratamento de erro, credenciais                   |
+| `register-use-case.test.ts`               | 6      | Validação antes do provider, senhas, erros, fluxo completo                     |
+| `request-password-reset-use-case.test.ts` | 5      | Validação de email, anti-enumeration (OWASP A07), erros silenciosos            |
+| `update-password-use-case.test.ts`        | 5      | Validação de senha, coincidência, token expirado, erros inesperados            |
+| `validation-helpers.test.ts`              | 2      | Extração de erro Zod com fallback defensivo                                    |
+| `module-entity.test.ts`                   | 3      | Guard `isEngineeringArea`, contrato do `EngineeringModule`                     |
+| `mechanical-modules.test.ts`              | 9      | 15 módulos, slugs únicos/kebab-case, calculadoras por módulo, lookup por slug  |
 
 
 ### Testes unitários — Componentes UI
@@ -307,19 +313,21 @@ Cada usuário só lê/edita seus próprios dados. Policies configuradas para SEL
 | `reset-password-form.test.tsx`  | 6      | Inputs de senha, autocomplete=new-password, divergência, tamanho mínimo     |
 | `google-button.test.tsx`        | 6      | Rótulo, type=button, onClick, loading disabled, texto loading, ícone SVG    |
 | `google-sign-in-field.test.tsx` | 3      | Renderização, chamada ao adapter, exibição de erro OAuth                    |
-| `dashboard-content.test.tsx`    | 5      | Saudação (nome/email fallback), plano, cálculos usados, botão sair          |
+| `dashboard-content.test.tsx`    | 7      | Saudação, plano, cálculos usados, botão sair, grid dos 15 módulos           |
 | `sign-out-button.test.tsx`      | 2      | Renderização + disparo do onSignOut                                         |
+| `module-card.test.tsx`          | 5      | Nome, descrição, link para /dashboard/{slug}, badge "Em breve"              |
 
 
 ### Testes unitários — Páginas
 
 
-| Suite                           | Testes | O que valida                                |
-| ------------------------------- | ------ | ------------------------------------------- |
-| `login-page.test.tsx`           | 5      | Heading, Logo, form, Google OAuth, divider  |
-| `register-page.test.tsx`        | 5      | Heading, Logo, form, Google OAuth, divider  |
-| `forgot-password-page.test.tsx` | 4      | Heading, Logo, form de email, helper text   |
-| `reset-password-page.test.tsx`  | 3      | Heading, Logo, form de nova senha           |
+| Suite                           | Testes | O que valida                               |
+| ------------------------------- | ------ | ------------------------------------------ |
+| `login-page.test.tsx`           | 5      | Heading, Logo, form, Google OAuth, divider |
+| `register-page.test.tsx`        | 5      | Heading, Logo, form, Google OAuth, divider |
+| `forgot-password-page.test.tsx` | 4      | Heading, Logo, form de email, helper text  |
+| `reset-password-page.test.tsx`  | 3      | Heading, Logo, form de nova senha          |
+| `module-detail-page.test.tsx`   | 4      | notFound em slug inválido, nome do módulo, lista de calculadoras, link voltar |
 
 
 ### Testes unitários — Segurança
@@ -333,9 +341,9 @@ Cada usuário só lê/edita seus próprios dados. Policies configuradas para SEL
 ### Testes unitários — Adapters
 
 
-| Suite                          | Testes | O que valida                                                              |
-| ------------------------------ | ------ | ------------------------------------------------------------------------- |
-| `start-google-sign-in.test.ts` | 3      | Throw em falha, redirect em sucesso, propagação de exceções do provider   |
+| Suite                          | Testes | O que valida                                                            |
+| ------------------------------ | ------ | ----------------------------------------------------------------------- |
+| `start-google-sign-in.test.ts` | 3      | Throw em falha, redirect em sucesso, propagação de exceções do provider |
 
 
 ### Testes de integração
@@ -349,15 +357,15 @@ Cada usuário só lê/edita seus próprios dados. Policies configuradas para SEL
 ### Test Factories (padrão Factory)
 
 
-| Factory                                             | Arquivo                  | Função                                                               |
-| --------------------------------------------------- | ------------------------ | -------------------------------------------------------------------- |
-| `createUser()`                                      | `user-factory.ts`        | Gera entidade User com UUID incremental e overrides                  |
-| `createMockAuthProvider()`                          | `auth-factory.ts`        | Mock completo do AuthProvider (7 métodos) com jest.fn()              |
-| `createLoginInput()`                                | `credentials-factory.ts` | Gera dados de login (email + senha)                                  |
-| `createRegisterInput()`                             | `credentials-factory.ts` | Gera dados de cadastro (nome + email + senha + confirmação)          |
-| `createPasswordResetInput()`                        | `credentials-factory.ts` | Gera dados do pedido de recuperação de senha                         |
-| `createPasswordUpdateInput()`                       | `credentials-factory.ts` | Gera dados de nova senha + confirmação                               |
-| `VALID_PASSWORD`, `SHORT_PASSWORD`, `INVALID_EMAIL` | `credentials-factory.ts` | Constantes reutilizáveis de teste                                    |
+| Factory                                             | Arquivo                  | Função                                                      |
+| --------------------------------------------------- | ------------------------ | ----------------------------------------------------------- |
+| `createUser()`                                      | `user-factory.ts`        | Gera entidade User com UUID incremental e overrides         |
+| `createMockAuthProvider()`                          | `auth-factory.ts`        | Mock completo do AuthProvider (7 métodos) com jest.fn()     |
+| `createLoginInput()`                                | `credentials-factory.ts` | Gera dados de login (email + senha)                         |
+| `createRegisterInput()`                             | `credentials-factory.ts` | Gera dados de cadastro (nome + email + senha + confirmação) |
+| `createPasswordResetInput()`                        | `credentials-factory.ts` | Gera dados do pedido de recuperação de senha                |
+| `createPasswordUpdateInput()`                       | `credentials-factory.ts` | Gera dados de nova senha + confirmação                      |
+| `VALID_PASSWORD`, `SHORT_PASSWORD`, `INVALID_EMAIL` | `credentials-factory.ts` | Constantes reutilizáveis de teste                           |
 
 
 ---
@@ -386,7 +394,7 @@ O pipeline roda automaticamente a cada push e pull request na branch `main`:
 
 | Job              | O que faz                                                               |
 | ---------------- | ----------------------------------------------------------------------- |
-| `audit_and_test` | `npm ci` → `npm audit` (SCA) → `npm run lint` → `npm test` (200 testes) |
+| `audit_and_test` | `npm ci` → `npm audit` (SCA) → `npm run lint` → `npm test` (223 testes) |
 | `codeql`         | Análise estática de segurança com CodeQL v3 (JavaScript/TypeScript)     |
 
 
@@ -437,7 +445,8 @@ SUPABASE_SERVICE_ROLE_KEY=sua-service-role-key
 - Infraestrutura Supabase (client, server, admin)
 - Schema do banco (profiles, subscriptions, calculations)
 - Clean Architecture (Entity, Port, Use Case, Adapters)
-- 200 testes com comentários em português
+- 223 testes com comentários em português
+- Dashboard com catálogo dos 15 módulos mecânicos (cards + páginas placeholder)
 - Test Factories (padrão Factory)
 - GitHub + CI/CD (SCA + testes + CodeQL)
 - .gitignore profissional
@@ -445,3 +454,4 @@ SUPABASE_SERVICE_ROLE_KEY=sua-service-role-key
 - Módulos de cálculo (15 módulos de eng. mecânica)
 - Integração Stripe (pagamentos)
 - Deploy Railway
+

@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { Calculator, CreditCard, Gauge } from "lucide-react";
 import type { User } from "@/core/entities/user";
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { ModuleCard } from "@/components/dashboard/module-card";
+import { MECHANICAL_MODULES } from "@/core/data/mechanical-modules";
 import { createSupabaseBrowserClient } from "@/infra/database/supabase-client";
 
 interface DashboardContentProps {
@@ -81,13 +83,22 @@ export function DashboardContent({ user }: DashboardContentProps) {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--card-bg)] p-8 text-center">
-        <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
-          Calculadoras em breve
-        </h2>
-        <p className="text-sm text-[var(--text-muted)]">
-          Os 15 módulos de engenharia mecânica estão sendo implementados.
-        </p>
+      <section className="space-y-4">
+        <div className="flex items-end justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-[var(--text-primary)]">
+              Engenharia Mecânica
+            </h2>
+            <p className="text-sm text-[var(--text-muted)]">
+              15 módulos organizados por área. Clique para abrir um módulo.
+            </p>
+          </div>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {MECHANICAL_MODULES.map((m) => (
+            <ModuleCard key={m.slug} module={m} />
+          ))}
+        </div>
       </section>
     </div>
   );

@@ -17,7 +17,10 @@ export function ResetPasswordForm() {
     const result = PasswordUpdateSchema.safeParse({ password, confirmPassword });
 
     if (!result.success) {
-      const fieldErrors = result.error.flatten().fieldErrors;
+      const fieldErrors = result.error.flatten().fieldErrors as Record<
+        string,
+        string[] | undefined
+      >;
       setErrors({
         password: fieldErrors.password?.[0],
         confirmPassword: fieldErrors.confirmPassword?.[0],

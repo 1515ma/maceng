@@ -22,7 +22,10 @@ export function RegisterForm() {
     const result = RegisterSchema.safeParse({ name, email, password, confirmPassword });
 
     if (!result.success) {
-      const fieldErrors = result.error.flatten().fieldErrors;
+      const fieldErrors = result.error.flatten().fieldErrors as Record<
+        string,
+        string[] | undefined
+      >;
       setErrors({
         name: fieldErrors.name?.[0],
         email: fieldErrors.email?.[0],
