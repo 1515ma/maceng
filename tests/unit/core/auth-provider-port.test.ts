@@ -42,4 +42,19 @@ describe("AuthProvider Port (interface contract)", () => {
     expect(result).toBeDefined();
     expect(result!.id).toMatch(/^[0-9a-f]{8}-/i);
   });
+
+  // Evita: port sem envio de email de recuperação, quebrando o RequestPasswordResetUseCase
+  it("sendPasswordResetEmail resolves with success flag", async () => {
+    const result = await mockAuthProvider.sendPasswordResetEmail("user@example.com");
+    expect(result.success).toBe(true);
+  });
+
+  // Evita: port sem método de atualização de senha, quebrando o fluxo de reset
+  it("updatePassword returns AuthResult with user on success", async () => {
+    const result = await mockAuthProvider.updatePassword("NovaSenha@123");
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.user).toBeDefined();
+    }
+  });
 });

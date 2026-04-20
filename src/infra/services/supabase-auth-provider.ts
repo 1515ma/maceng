@@ -1,5 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { AuthProvider, AuthResult, GoogleAuthResult } from "@/core/ports/auth-provider";
+import type {
+  AuthProvider,
+  AuthResult,
+  GoogleAuthResult,
+  PasswordResetEmailResult,
+} from "@/core/ports/auth-provider";
 import type { User, SubscriptionPlan } from "@/core/entities/user";
 
 export class SupabaseAuthProvider implements AuthProvider {
@@ -53,6 +58,30 @@ export class SupabaseAuthProvider implements AuthProvider {
 
   async signOut(): Promise<void> {
     await this.supabase.auth.signOut();
+  }
+
+  async sendPasswordResetEmail(email: string): Promise<PasswordResetEmailResult> {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${origin}/redefinir-senha`,
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  }
+
+  async updatePassword(newPassword: string): Promise<AuthResult> {
+    const { data, error } = await this.supabase.auth.updateUser({ password: newPassword });
+
+    if (error || !data.user) {
+      return { success: false, error: error?.message ?? "Erro ao atualizar senha" };
+    }
+
+    const user = await this.resolveUser(data.user.id, data.user.email!);
+    return { success: true, user };
   }
 
   async getUser(): Promise<User | null> {

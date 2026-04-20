@@ -10,6 +10,15 @@ export interface RegisterInput {
   confirmPassword: string;
 }
 
+export interface PasswordResetInput {
+  email: string;
+}
+
+export interface PasswordUpdateInput {
+  password: string;
+  confirmPassword: string;
+}
+
 export function createLoginInput(overrides: Partial<LoginInput> = {}): LoginInput {
   return {
     email: "user@example.com",
@@ -24,6 +33,21 @@ export function createRegisterInput(overrides: Partial<RegisterInput> = {}): Reg
     email: "joao@example.com",
     password: "Senh@123",
     confirmPassword: "Senh@123",
+    ...overrides,
+  };
+}
+
+export function createPasswordResetInput(overrides: Partial<PasswordResetInput> = {}): PasswordResetInput {
+  return {
+    email: "user@example.com",
+    ...overrides,
+  };
+}
+
+export function createPasswordUpdateInput(overrides: Partial<PasswordUpdateInput> = {}): PasswordUpdateInput {
+  return {
+    password: "NovaSenha@123",
+    confirmPassword: "NovaSenha@123",
     ...overrides,
   };
 }
