@@ -16,7 +16,7 @@ Plataforma profissional de cálculos técnicos para engenharia mecânica. Dimens
 | **Linhas SQL (migrations)**               | 116                                           |
 | **Linhas CSS**                            | 86                                            |
 | **Suites de teste**                       | 50                                            |
-| **Testes unitários + integração**         | 284 (todos passando)                          |
+| **Testes unitários + integração**         | 287 (todos passando)                          |
 | **Arquivos de produção (.ts/.tsx)**       | 65                                            |
 | **Arquivos de teste (.test.ts/.tsx)**     | 50                                            |
 | **Arquivos de factory (tests/factories)** | 4                                             |
@@ -289,26 +289,33 @@ Dashboard → **Authentication → URL Configuration**:
 
 Sem isso, o Supabase **rejeita silenciosamente** o `redirectTo` e o email **nunca sai**.
 
-### 2. Rate limit do SMTP default do Supabase
+### 2. Rate limit do Maceng (nossa API) — recuperação
 
-O SMTP built-in do Supabase no **free tier** limita a **~2 emails/hora por projeto**.
+Por **e-mail** (hash SHA-256): **até 20 pedidos de link por e-mail, a cada 24 h**.  
+Por **IP**: **até 30 pedidos por IP, a cada 24 h** (independentes, servem a papéis diferentes).  
+Isto **não** remove o teto do Supabase abaixo — se ainda faltar e-mail, o gargalo é o provedor.
+
+### 3. Rate limit do SMTP default do Supabase (causa comum de “só 2 e-mails”)
+
+O SMTP built-in do Supabase no **free tier** costuma limitar a **cerca de 2–4 e-mails/hora** no
+**projeto inteiro** (não é o limite de 20/dia do nosso app).
 Se testou várias vezes em sequência, está bloqueado. Soluções:
 
 - Aguarde 1 hora, ou
 - Configure **SMTP custom** em Dashboard → Project Settings → Auth → SMTP Settings (recomendado: Resend, SendGrid, Mailgun — 100+ emails/mês grátis cada), ou
 - Use outro email de teste em outra janela de 1h
 
-### 3. `NEXT_PUBLIC_SITE_URL`
+### 4. `NEXT_PUBLIC_SITE_URL`
 
 Em **dev**, opcional (cai em `request.nextUrl.origin`).
 Em **produção atrás de proxy** (Vercel, Railway, Cloudflare), **obrigatória** — senão o link do email pode apontar para o host interno do container em vez do domínio público.
 
-### 4. Pasta de spam / promoções
+### 5. Pasta de spam / promoções
 
 O remetente padrão `noreply@mail.app.supabase.io` frequentemente cai no spam
 (especialmente Gmail/Outlook). SMTP custom com domínio próprio resolve.
 
-### 5. Logs do nosso lado
+### 6. Logs do nosso lado
 
 Toda requisição gera log estruturado em JSON no stdout do Next. Procure por:
 
@@ -319,11 +326,11 @@ Toda requisição gera log estruturado em JSON no stdout do Next. Procure por:
 
 Se não aparecer nenhum, a request nem saiu do cliente.
 
-### 6. Logs do Supabase
+### 7. Logs do Supabase
 
 Dashboard → **Authentication → Logs** mostra tentativas de envio e erros de SMTP/redirect.
 
-### 7. Link do e-mail abre `/login?error=auth` em vez de `/redefinir-senha`
+### 8. Link do e-mail abre `/login?error=auth` em vez de `/redefinir-senha`
 
 Mensagem `#error=...&error_code=otp_expired` no hash: o link **expirou** — peça outro
 em "Esqueceu a senha?". A tela de login lê o fragmento no **cliente** (o servidor
@@ -337,7 +344,7 @@ O Supabase pode enviar o reset em **dois formatos**:
 A aplicação passou a tratar **ambos** no mesmo callback. Se ainda cair em login, copie a URL completa do navegador (sem tokens sensíveis em prints públicos) e confira se o redirect no Dashboard inclui `/api/auth/callback?next=/redefinir-senha`.
 
 
-## Testes (284 testes, 50 suites)
+## Testes (287 testes, 50 suites)
 
 ### Testes unitários — Core (camada pura)
 
@@ -377,7 +384,7 @@ A aplicação passou a tratar **ambos** no mesmo callback. Se ainda cair em logi
 | `calculator-preview.test.tsx`   | 5      | Campos de entrada, fórmula, resultado, badge aprovação                                                         |
 | `login-form.test.tsx`           | 14     | Inputs, validação, Google, **submit→postLogin, redirect /dashboard, erro HTTP, botão disabled durante submit** |
 | `register-form.test.tsx`        | 14     | 4 campos, senhas coincidentes, **submit→postRegister, redirect /dashboard, erro HTTP**                         |
-| `forgot-password-form.test.tsx` | 7      | Email, validação, anti-enumeration, **submit→postPasswordReset**                                               |
+| `forgot-password-form.test.tsx` | 8      | Validação, sucesso, **falha 429/limite mostra erro** (não falso-positivo de envio)                              |
 | `reset-password-form.test.tsx`  | 9      | Inputs, divergência, mínimo, **submit→postPasswordUpdate, redirect /dashboard, erro HTTP**                     |
 | `google-button.test.tsx`        | 6      | Rótulo, type=button, onClick, loading disabled, texto loading, ícone SVG                                       |
 | `google-sign-in-field.test.tsx` | 3      | Renderização, chamada ao adapter, exibição de erro OAuth                                                       |
@@ -417,7 +424,7 @@ A aplicação passou a tratar **ambos** no mesmo callback. Se ainda cair em logi
 | `auth-logger.test.ts`          | 5      | SHA-256 email, normalização, JSON estruturado, severity info/warn, sem PII plaintext             |
 | `site-url.test.ts`             | 7      | Origin fallback, `NEXT_PUBLIC_SITE_URL` proxy-safe, validação protocolo, IP real x-forwarded-for |
 | `parse-supabase-auth-hash.test.ts` | 4  | Hash `#error_code=otp_expired` (fragmento não vai ao servidor), mensagens PT                     |
-| `password-reset-route.test.ts` | 7      | 429 + Retry-After, IP real, redirectTo proxy-safe, log estruturado, anti-enumeration             |
+| `password-reset-route.test.ts` | 9      | 429 IP + e-mail (24h), chave com hash, redirectTo, allowlist, logs, anti-enumeration no 200      |
 | `auth-callback-route.test.ts`  | 8      | `code` PKCE, `token_hash`+`type` verifyOtp (recovery), allowlist next, open-redirect, falhas → login |
 | `login-route.test.ts`          | 3      | 429, log login_failed com reason, log login_success                                               |
 | `register-route.test.ts`       | 2      | 429, log register_success com IP real                                                             |
@@ -471,7 +478,7 @@ O pipeline roda automaticamente a cada push e pull request na branch `main`:
 
 | Job              | O que faz                                                               |
 | ---------------- | ----------------------------------------------------------------------- |
-| `audit_and_test` | `npm ci` → `npm audit` (SCA) → `npm run lint` → `npm test` (284 testes) |
+| `audit_and_test` | `npm ci` → `npm audit` (SCA) → `npm run lint` → `npm test` (287 testes) |
 | `codeql`         | Análise estática de segurança com CodeQL v3 (JavaScript/TypeScript)     |
 
 
@@ -522,7 +529,7 @@ SUPABASE_SERVICE_ROLE_KEY=sua-service-role-key
 - Infraestrutura Supabase (client, server, admin)
 - Schema do banco (profiles, subscriptions, calculations)
 - Clean Architecture (Entity, Port, Use Case, Adapters)
-- 284 testes com comentários em português
+- 287 testes com comentários em português
 - Rate limiting em `/api/auth/login`, `/register`, `/password-reset` (DevSecOps)
 - Logs estruturados de auth com hash SHA-256 do email (anti-PII)
 - Site URL proxy-safe via `NEXT_PUBLIC_SITE_URL` (funciona atrás de Vercel/Railway)

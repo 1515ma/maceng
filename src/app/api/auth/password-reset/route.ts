@@ -4,29 +4,12 @@ import { SupabaseAuthProvider } from "@/infra/services/supabase-auth-provider";
 import { RequestPasswordResetUseCase } from "@/core/use-cases/request-password-reset";
 import { PasswordResetSchema } from "@/core/schemas/password-reset-schema";
 import { firstValidationError } from "@/core/schemas/validation-helpers";
-import { passwordResetLimiter } from "@/infra/security/rate-limiter";
-import { authLogger } from "@/infra/logging/auth-logger";
+import { passwordResetEmailLimiter, passwordResetIpLimiter } from "@/infra/security/rate-limiter";
+import { authLogger, hashEmail } from "@/infra/logging/auth-logger";
 import { resolveClientIp, resolveSiteUrl } from "@/infra/http/site-url";
 
 export async function POST(request: NextRequest) {
   const ip = resolveClientIp(request);
-
-  // Rate limit ANTES de qualquer trabalho caro (DevSecOps: rate limiting on auth endpoints).
-  // Chave combina rota + IP para isolar reset/login/register.
-  const limit = passwordResetLimiter.check(`password-reset:${ip}`);
-  if (!limit.allowed) {
-    authLogger.logEvent({
-      type: "password_reset_rate_limited",
-      email: "unknown@rate-limited",
-      ip,
-      success: false,
-      reason: "too_many_requests",
-    });
-    return NextResponse.json(
-      { success: false, error: "Muitas tentativas. Tente novamente mais tarde." },
-      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } },
-    );
-  }
 
   const body = await request.json().catch(() => null);
   if (!body) {
@@ -41,6 +24,39 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { success: false, error: firstValidationError(validation) },
       { status: 400 },
+    );
+  }
+
+  // Rate limit: só após e-mail sintaticamente válido (regra de borda, zero-trust)
+  // — duas chaves, independentes: IP (anti-abuse) e hash do e-mail (anti-spam alvo, com cota de dia)
+  const limitIp = passwordResetIpLimiter.check(`password-reset:ip:${ip}`);
+  if (!limitIp.allowed) {
+    authLogger.logEvent({
+      type: "password_reset_rate_limited",
+      email: validation.data.email,
+      ip,
+      success: false,
+      reason: "per_ip",
+    });
+    return NextResponse.json(
+      { success: false, error: "Muitas tentativas. Tente novamente mais tarde." },
+      { status: 429, headers: { "Retry-After": String(limitIp.retryAfterSeconds) } },
+    );
+  }
+
+  const emailKey = `password-reset:email:${hashEmail(validation.data.email)}`;
+  const limitEmail = passwordResetEmailLimiter.check(emailKey);
+  if (!limitEmail.allowed) {
+    authLogger.logEvent({
+      type: "password_reset_rate_limited",
+      email: validation.data.email,
+      ip,
+      success: false,
+      reason: "per_email",
+    });
+    return NextResponse.json(
+      { success: false, error: "Limite de pedidos de e-mail atingido hoje. Tente amanhã ou use outro e-mail de contato." },
+      { status: 429, headers: { "Retry-After": String(limitEmail.retryAfterSeconds) } },
     );
   }
 

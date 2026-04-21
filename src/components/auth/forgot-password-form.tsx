@@ -23,10 +23,16 @@ export function ForgotPasswordForm() {
     }
 
     setSubmitting(true);
-    // Anti-enumeration (OWASP A07): ignora o resultado e mostra a mesma mensagem
-    // genérica, independentemente de o e-mail existir ou não no banco.
-    await postPasswordReset(result.data.email);
+    const res = await postPasswordReset(result.data.email);
     setSubmitting(false);
+
+    if (!res.success) {
+      setError(res.error ?? "Não foi possível enviar. Tente novamente.");
+      return;
+    }
+
+    // Anti-enumeration (OWASP A07): 200 com sucesso → mesma mensagem genérica, sem revelar
+    // se o e-mail existe. Erros 429/400/ rede seguem o branch acima, sem sucesso falso.
     setSubmitted(true);
   }
 

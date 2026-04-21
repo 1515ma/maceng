@@ -76,4 +76,17 @@ describe("ForgotPasswordForm", () => {
 
     await waitFor(() => expect(postPasswordResetMock).toHaveBeenCalledWith(input.email));
   });
+
+  // Evita: 429/limite (app ou rede) exibir a mesma mensagem de sucesso, enganando o usuário
+  it("mostra erro do servidor em falha (ex. limite de pedidos) em vez de sucesso genérico", async () => {
+    postPasswordResetMock.mockResolvedValueOnce({ success: false, error: "Limite hoje" });
+    const user = userEvent.setup();
+    const input = createPasswordResetInput();
+
+    await user.type(screen.getByLabelText("E-mail"), input.email);
+    await user.click(screen.getByRole("button", { name: /Enviar link/i }));
+
+    expect(await screen.findByText(/limite hoje/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Se o e-mail estiver cadastrado/i)).not.toBeInTheDocument();
+  });
 });

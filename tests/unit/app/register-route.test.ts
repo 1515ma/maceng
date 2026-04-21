@@ -38,7 +38,8 @@ jest.mock("@/infra/database/supabase-server", () => ({
 jest.mock("@/infra/security/rate-limiter", () => ({
   registerLimiter: { check: (key: string) => checkMock(key) },
   loginLimiter: { check: jest.fn(() => ({ allowed: true, remaining: 10, retryAfterSeconds: 0 })) },
-  passwordResetLimiter: { check: jest.fn(() => ({ allowed: true, remaining: 5, retryAfterSeconds: 0 })) },
+  passwordResetIpLimiter: { check: jest.fn(() => ({ allowed: true, remaining: 30, retryAfterSeconds: 0 })) },
+  passwordResetEmailLimiter: { check: jest.fn(() => ({ allowed: true, remaining: 20, retryAfterSeconds: 0 })) },
 }));
 
 jest.mock("@/infra/logging/auth-logger", () => ({

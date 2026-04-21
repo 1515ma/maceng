@@ -66,14 +66,23 @@ export function createRateLimiter(options: RateLimiterOptions): RateLimiter {
   };
 }
 
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
 /**
- * Instâncias compartilhadas por endpoint, cada uma com seu próprio limite.
- * O módulo é carregado uma única vez pelo Next.js por processo, então o Map
- * persiste entre requisições (comportamento desejado).
+ * Recuperação de senha: dois contadores (DevSecOps + UX).
+ * - **Por e-mail** (chave = hash): evita engembarcar um alvo, mas deixa o dia à vontade para teste (20/dia).
+ * - **Por IP**: anti-abuse distribuído (30/dia).
+ * Nota: o Supabase com SMTP padrão ainda aplica cota **própria** (tipic. ~2–4 e-mails/hora no free).
+ * Para mais e-mails, use SMTP custom no painel do Supabase.
  */
-export const passwordResetLimiter = createRateLimiter({
-  limit: 5,
-  windowMs: 60 * 60 * 1000, // 1 hora
+export const passwordResetIpLimiter = createRateLimiter({
+  limit: 30,
+  windowMs: ONE_DAY_MS,
+});
+
+export const passwordResetEmailLimiter = createRateLimiter({
+  limit: 20,
+  windowMs: ONE_DAY_MS,
 });
 
 export const loginLimiter = createRateLimiter({
