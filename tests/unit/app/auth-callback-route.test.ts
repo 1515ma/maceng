@@ -4,11 +4,13 @@
 import { NextRequest } from "next/server";
 
 const exchangeCodeForSessionMock = jest.fn(async () => ({ error: null }));
+const verifyOtpMock = jest.fn(async () => ({ error: null }));
 
 jest.mock("@/infra/database/supabase-server", () => ({
   createSupabaseServerClient: jest.fn(async () => ({
     auth: {
       exchangeCodeForSession: exchangeCodeForSessionMock,
+      verifyOtp: verifyOtpMock,
     },
   })),
 }));
@@ -18,16 +20,19 @@ import { GET } from "@/app/api/auth/callback/route";
 beforeEach(() => {
   exchangeCodeForSessionMock.mockClear();
   exchangeCodeForSessionMock.mockResolvedValue({ error: null });
+  verifyOtpMock.mockClear();
+  verifyOtpMock.mockResolvedValue({ error: null });
 });
 
 describe("GET /api/auth/callback", () => {
-  // Evita: sem code o callback redirecionar como se tivesse autenticado, driblando o fluxo
-  it("redireciona para /login?error=auth quando não há code", async () => {
+  // Evita: sem code nem token_hash o callback redirecionar como se tivesse autenticado
+  it("redireciona para /login?error=auth quando não há code nem token", async () => {
     const req = new NextRequest("https://site.com/api/auth/callback");
     const res = await GET(req);
     expect(res.status).toBe(307);
     expect(res.headers.get("location")).toBe("https://site.com/login?error=auth");
     expect(exchangeCodeForSessionMock).not.toHaveBeenCalled();
+    expect(verifyOtpMock).not.toHaveBeenCalled();
   });
 
   // Evita: fluxo padrão (login/signup) não chegar ao dashboard após exchange bem-sucedido
@@ -60,6 +65,39 @@ describe("GET /api/auth/callback", () => {
   it("vai para /login?error=auth quando exchangeCodeForSession retorna erro", async () => {
     exchangeCodeForSessionMock.mockResolvedValueOnce({ error: new Error("invalid") as unknown as null });
     const req = new NextRequest("https://site.com/api/auth/callback?code=abc");
+    const res = await GET(req);
+    expect(res.headers.get("location")).toBe("https://site.com/login?error=auth");
+  });
+
+  // Evita: email de recuperação vir com token_hash+type (PKCE docs) e cair em login por falta de ?code
+  it("troca token_hash+type=recovery por sessão e respeita next=/redefinir-senha", async () => {
+    const req = new NextRequest(
+      "https://site.com/api/auth/callback?token_hash=th1&type=recovery&next=%2Fredefinir-senha",
+    );
+    const res = await GET(req);
+    expect(exchangeCodeForSessionMock).not.toHaveBeenCalled();
+    expect(verifyOtpMock).toHaveBeenCalledWith(
+      expect.objectContaining({ token_hash: "th1", type: "recovery" }),
+    );
+    expect(res.headers.get("location")).toBe("https://site.com/redefinir-senha");
+  });
+
+  // Evita: atacante passar type arbitrário e abrir vetor de confusão / enum
+  it("ignora verifyOtp quando type não está na allowlist de segurança", async () => {
+    const req = new NextRequest(
+      "https://site.com/api/auth/callback?token_hash=th1&type=arbitrary&next=%2Fredefinir-senha",
+    );
+    const res = await GET(req);
+    expect(verifyOtpMock).not.toHaveBeenCalled();
+    expect(res.headers.get("location")).toBe("https://site.com/login?error=auth");
+  });
+
+  // Evita: verifyOtp falhar e mesmo assim redirecionar como logado
+  it("vai para /login?error=auth quando verifyOtp retorna erro", async () => {
+    verifyOtpMock.mockResolvedValueOnce({ error: new Error("expired") as unknown as null });
+    const req = new NextRequest(
+      "https://site.com/api/auth/callback?token_hash=th1&type=recovery",
+    );
     const res = await GET(req);
     expect(res.headers.get("location")).toBe("https://site.com/login?error=auth");
   });
