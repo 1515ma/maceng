@@ -15,10 +15,10 @@ Plataforma profissional de cálculos técnicos para engenharia mecânica. Dimens
 | **Linhas de config (root)**               | 79                                            |
 | **Linhas SQL (migrations)**               | 116                                           |
 | **Linhas CSS**                            | 86                                            |
-| **Suites de teste**                       | 49                                            |
-| **Testes unitários + integração**         | 280 (todos passando)                          |
+| **Suites de teste**                       | 50                                            |
+| **Testes unitários + integração**         | 284 (todos passando)                          |
 | **Arquivos de produção (.ts/.tsx)**       | 65                                            |
-| **Arquivos de teste (.test.ts/.tsx)**     | 49                                            |
+| **Arquivos de teste (.test.ts/.tsx)**     | 50                                            |
 | **Arquivos de factory (tests/factories)** | 4                                             |
 | **Migrations SQL**                        | 1 (schema completo)                           |
 | **Regras de negócio (.cursor/rules)**     | 4 (Architecture, TDD, DevSecOps, Performance) |
@@ -325,6 +325,10 @@ Dashboard → **Authentication → Logs** mostra tentativas de envio e erros de 
 
 ### 7. Link do e-mail abre `/login?error=auth` em vez de `/redefinir-senha`
 
+Mensagem `#error=...&error_code=otp_expired` no hash: o link **expirou** — peça outro
+em "Esqueceu a senha?". A tela de login lê o fragmento no **cliente** (o servidor
+não recebe o que vem após `#`) e mostra o aviso em português.
+
 O Supabase pode enviar o reset em **dois formatos**:
 
 - **PKCE com `?code=`** — tratado por `exchangeCodeForSession` no `/api/auth/callback`.
@@ -333,7 +337,7 @@ O Supabase pode enviar o reset em **dois formatos**:
 A aplicação passou a tratar **ambos** no mesmo callback. Se ainda cair em login, copie a URL completa do navegador (sem tokens sensíveis em prints públicos) e confira se o redirect no Dashboard inclui `/api/auth/callback?next=/redefinir-senha`.
 
 
-## Testes (280 testes, 49 suites)
+## Testes (284 testes, 50 suites)
 
 ### Testes unitários — Core (camada pura)
 
@@ -412,6 +416,7 @@ A aplicação passou a tratar **ambos** no mesmo callback. Se ainda cair em logi
 | `rate-limiter.test.ts`         | 5      | Janela deslizante, limite, isolamento por chave, O(1) amortizado                                  |
 | `auth-logger.test.ts`          | 5      | SHA-256 email, normalização, JSON estruturado, severity info/warn, sem PII plaintext             |
 | `site-url.test.ts`             | 7      | Origin fallback, `NEXT_PUBLIC_SITE_URL` proxy-safe, validação protocolo, IP real x-forwarded-for |
+| `parse-supabase-auth-hash.test.ts` | 4  | Hash `#error_code=otp_expired` (fragmento não vai ao servidor), mensagens PT                     |
 | `password-reset-route.test.ts` | 7      | 429 + Retry-After, IP real, redirectTo proxy-safe, log estruturado, anti-enumeration             |
 | `auth-callback-route.test.ts`  | 8      | `code` PKCE, `token_hash`+`type` verifyOtp (recovery), allowlist next, open-redirect, falhas → login |
 | `login-route.test.ts`          | 3      | 429, log login_failed com reason, log login_success                                               |
@@ -466,7 +471,7 @@ O pipeline roda automaticamente a cada push e pull request na branch `main`:
 
 | Job              | O que faz                                                               |
 | ---------------- | ----------------------------------------------------------------------- |
-| `audit_and_test` | `npm ci` → `npm audit` (SCA) → `npm run lint` → `npm test` (280 testes) |
+| `audit_and_test` | `npm ci` → `npm audit` (SCA) → `npm run lint` → `npm test` (284 testes) |
 | `codeql`         | Análise estática de segurança com CodeQL v3 (JavaScript/TypeScript)     |
 
 
@@ -517,7 +522,7 @@ SUPABASE_SERVICE_ROLE_KEY=sua-service-role-key
 - Infraestrutura Supabase (client, server, admin)
 - Schema do banco (profiles, subscriptions, calculations)
 - Clean Architecture (Entity, Port, Use Case, Adapters)
-- 280 testes com comentários em português
+- 284 testes com comentários em português
 - Rate limiting em `/api/auth/login`, `/register`, `/password-reset` (DevSecOps)
 - Logs estruturados de auth com hash SHA-256 do email (anti-PII)
 - Site URL proxy-safe via `NEXT_PUBLIC_SITE_URL` (funciona atrás de Vercel/Railway)

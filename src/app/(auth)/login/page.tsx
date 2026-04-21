@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Logo } from "@/components/ui/logo";
 import { LoginForm } from "@/components/auth/login-form";
+import { SupabaseAuthFragmentBanner } from "@/components/auth/supabase-auth-fragment-banner";
 
 export const metadata: Metadata = {
   title: "Entrar | Maceng",
@@ -21,6 +23,10 @@ export default function LoginPage() {
         <p className="text-sm text-center text-[var(--text-muted)] mb-8">
           Acesse suas calculadoras de engenharia mecânica
         </p>
+
+        <Suspense fallback={null}>
+          <SupabaseAuthFragmentBanner />
+        </Suspense>
 
         <LoginForm />
       </div>
